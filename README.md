@@ -26,7 +26,7 @@ for i in mb:
     #mb.update_graph(graphs, x_bounds, y_bounds)
 ```
 
-![](pb_basic.gif =250x)
+<img src="pb_basic.gif" width="200">
 
 To add a graph that get plots as the training goes, just use the command mb.update_graphs. It will create the figure on its first use. Arguments are:
 - graphs: a list of graphs to be plotted (each of the form [x,y])
