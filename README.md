@@ -4,7 +4,7 @@ A fast and simple progress bar for Jupyter Notebook and console. Created by Sylv
 
 Copyright 2017 onwards, fast.ai. Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. A copy of the License is provided in the LICENSE file in this repository.
 
-![](progressbar.mp4)
+![](cifar_train.gif)
 
 ## Usage
 
@@ -22,4 +22,6 @@ for i in mb:
     mb.write(f'Finished loop {i}.')
     #mb.update_graph(graphs, x_bounds, y_bounds)
 ```
+
+![](pb_basic.gif)
 
