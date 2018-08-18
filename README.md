@@ -4,7 +4,7 @@ A fast and simple progress bar for Jupyter Notebook and console. Created by Sylv
 
 Copyright 2017 onwards, fast.ai. Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. A copy of the License is provided in the LICENSE file in this repository.
 
-![](cifar_train.gif)
+<img src="cifar_train.gif" width="600">
 
 ## Usage
 
@@ -26,7 +26,7 @@ for i in mb:
     #mb.update_graph(graphs, x_bounds, y_bounds)
 ```
 
-<img src="pb_basic.gif" width="200">
+<img src="pb_basic.gif" width="600">
 
 To add a graph that get plots as the training goes, just use the command mb.update_graphs. It will create the figure on its first use. Arguments are:
 - graphs: a list of graphs to be plotted (each of the form [x,y])
@@ -56,9 +56,9 @@ for i in mb:
     mb.write(f'Finished loop {i}.')
 ```
 
-![](pb_cos.gif)
+<img src="pb_cos.gif" width="600">
 
 Here is the rendering in console:
 
-![](pb_console.gif)
+<img src="pb_console.gif" width="600">
 
