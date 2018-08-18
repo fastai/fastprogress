@@ -60,5 +60,5 @@ for i in mb:
 
 Here is the rendering in console:
 
-<img src="pb_console.gif" width="600">
+<img src="pb_console.gif" width="800">
 
