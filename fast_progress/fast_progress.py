@@ -9,6 +9,8 @@ try:
     IN_NOTEBOOK = IPKernelApp.initialized()
 except: IN_NOTEBOOK = False
 
+__all__ = ['master_bar', 'progress_bar']
+
 def format_time(t):
     t = int(t)
     h,m,s = t//3600, (t//60)%60, t%60
@@ -38,7 +40,9 @@ class ProgressBar():
             for i,o in enumerate(self._gen):
                 yield o
                 self.update(i+1)
-        except: self.on_interrupt()
+        except: 
+            self.on_interrupt()
+            raise
         self.on_iter_end()
 
     def update(self, val):
