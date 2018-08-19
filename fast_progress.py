@@ -2,14 +2,12 @@ from time import time
 
 try:
     from ipykernel.kernelapp import IPKernelApp
-    IN_NOTEBOOK = IPKernelApp.initialized()
-except: IN_NOTEBOOK = False
-
-if IN_NOTEBOOK:
     from ipywidgets import widgets, IntProgress, HBox, HTML, VBox
     from IPython.display import clear_output
     from ipywidgets.widgets.interaction import show_inline_matplotlib_plots
     import matplotlib.pyplot as plt
+    IN_NOTEBOOK = IPKernelApp.initialized()
+except: IN_NOTEBOOK = False
 
 def format_time(t):
     t = int(t)
