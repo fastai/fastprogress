@@ -3,7 +3,7 @@ from time import time
 try:
     from ipykernel.kernelapp import IPKernelApp
     from ipywidgets import widgets, IntProgress, HBox, HTML, VBox
-    from IPython.display import clear_output
+    from IPython.display import clear_output, display
     from ipywidgets.widgets.interaction import show_inline_matplotlib_plots
     import matplotlib.pyplot as plt
     IN_NOTEBOOK = IPKernelApp.initialized()
