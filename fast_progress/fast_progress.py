@@ -20,8 +20,8 @@ def format_time(t):
 class ProgressBar():
     update_every = 0.2
 
-    def __init__(self, gen, display=True, leave=True, parent=None):
-        self._gen,self.total = gen,len(gen)
+    def __init__(self, gen, display=True, leave=True, parent=None, update_func=None):
+        self._gen,self.total,self.update_func = gen,len(gen),update_func
         if parent is None: self.leave,self.display = leave,display
         else:
             self.leave,self.display=False,False
@@ -60,6 +60,7 @@ class ProgressBar():
             self.update_bar(val)
 
     def update_bar(self, val):
+        if self.update_func is not None: self.update_func()
         elapsed_t = self.last_t - self.start_t
         remaining_t = format_time(self.pred_t - elapsed_t)
         elapsed_t = format_time(elapsed_t)
@@ -83,10 +84,10 @@ class MasterBar():
 
 
 class NBProgressBar(ProgressBar):
-    def __init__(self,gen, display=True, leave=True, parent=None):
+    def __init__(self,gen, display=True, leave=True, parent=None, update_func=None):
         self.progress,self.text = IntProgress(min=0, max=len(gen)), HTML()
         self.box = HBox([self.progress, self.text])
-        super().__init__(gen, display, leave, parent)
+        super().__init__(gen, display, leave, parent, update_func)
 
     def on_iter_begin(self):
         if self.display: display(self.box)
@@ -107,11 +108,13 @@ class NBProgressBar(ProgressBar):
 
 class NBMasterBar(MasterBar):
     names = ['train', 'valid']
-    def __init__(self, gen, hide_graph=False):
+    def __init__(self, gen, hide_graph=False, order=None):
         super().__init__(gen, NBProgressBar)
         self.text = HTML()
         self.vbox = VBox([self.first_bar.box, self.text])
-        self.hide_graph = hide_graph
+        if order is None: order = ['pb1', 'text', 'pb2', 'graph']
+        self.inner_dict = {'pb1':self.first_bar.box, 'text':self.text}
+        self.hide_graph,self.order = hide_graph,order
 
     def on_iter_begin(self): display(self.vbox)
     def on_iter_end(self):
@@ -119,16 +122,23 @@ class NBMasterBar(MasterBar):
 
     def add_child(self, child):
         self.child = child
-        if hasattr(self,'out'): self.vbox.children = [self.first_bar.box, self.text, child.box, self.out]
-        else:                   self.vbox.children = [self.first_bar.box, self.text, child.box]
+        self.inner_dict['pb2'] = self.child.box
+        if hasattr(self,'out'): self.show(['pb1', 'pb2', 'text', 'graph'])
+        else:                   self.show(['pb1', 'pb2', 'text'])
+
+    def show(self, child_names):
+        to_show = [name for name in self.order if name in child_names]
+        self.vbox.children = [self.inner_dict[n] for n in to_show]
 
     def write(self, line): self.text.value += line + '<p>'
 
     def update_graph(self, graphs, x_bounds=None, y_bounds=None):
         if self.hide_graph: return
+        self.out = widgets.Output()
         if not hasattr(self, 'fig'):
             self.fig, self.ax = plt.subplots(1, figsize=(6,4))
         self.out = widgets.Output()
+        self.inner_dict['graph'] = self.out
         self.ax.clear()
         if len(self.names) < len(graphs): self.names += [''] * (len(graphs) - len(self.names))
         for g,n in zip(graphs,self.names): self.ax.plot(*g, label=n)
@@ -138,18 +148,17 @@ class NBMasterBar(MasterBar):
         with self.out:
             clear_output(wait=True)
             display(self.ax.figure)
-        if hasattr(self,'child') and self.child.is_active:
-            self.vbox.children = [self.first_bar.box, self.text, self.child.box, self.out]
-        else: self.vbox.children = [self.first_bar.box, self.text, self.out]
+        if hasattr(self,'child') and self.child.is_active: self.show(['pb1', 'pb2', 'text', 'graph'])
+        else: self.show(['pb1', 'text', 'graph'])
 
 
 class ConsoleProgressBar(ProgressBar):
     length:int=50
     fill:str='█'
 
-    def __init__(self,gen, display=True, leave=True, parent=None):
+    def __init__(self,gen, display=True, leave=True, parent=None, update_func=None):
         self.max_len,self.prefix = 0,''
-        super().__init__(gen, display, leave, parent)
+        super().__init__(gen, display, leave, parent, update_func)
 
     def on_iter_end(self):
         if not self.leave:
@@ -165,7 +174,7 @@ class ConsoleProgressBar(ProgressBar):
 
 
 class ConsoleMasterBar(MasterBar):
-    def __init__(self, gen): super().__init__(gen, ConsoleProgressBar)
+    def __init__(self, gen, hide_graph=False, order=None): super().__init__(gen, ConsoleProgressBar)
 
     def add_child(self, child):
         self.child = child
