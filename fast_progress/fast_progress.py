@@ -20,8 +20,8 @@ def format_time(t):
 class ProgressBar():
     update_every = 0.2
 
-    def __init__(self, gen, display=True, leave=True, parent=None, update_func=None):
-        self._gen,self.total,self.update_func = gen,len(gen),update_func
+    def __init__(self, gen, display=True, leave=True, parent=None):
+        self._gen,self.total = gen,len(gen)
         if parent is None: self.leave,self.display = leave,display
         else:
             self.leave,self.display=False,False
@@ -60,7 +60,6 @@ class ProgressBar():
             self.update_bar(val)
 
     def update_bar(self, val):
-        if self.update_func is not None: self.update_func()
         elapsed_t = self.last_t - self.start_t
         remaining_t = format_time(self.pred_t - elapsed_t)
         elapsed_t = format_time(elapsed_t)
