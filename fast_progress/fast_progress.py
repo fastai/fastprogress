@@ -58,6 +58,10 @@ class ProgressBar():
             self.pred_t = avg_t * self.total
             self.last_v,self.last_t = val,cur_t
             self.update_bar(val)
+        elif val == self.total - 1:
+            self.last_v, self.last_t = val, time()
+            self.pred_t = self.last_t - self.start_t
+            self.update_bar(self.total)
 
     def update_bar(self, val):
         elapsed_t = self.last_t - self.start_t
