@@ -150,7 +150,7 @@ class NBMasterBar(MasterBar):
             self.last_t = cur_time
         else: elapsed_time = ''
         self.report.append([line, elapsed_time])
-        self.text.value = '<pre>' + '\n'.join([o[0] for o in self.report]) + '</pre>'
+        self.text.value += line + '<p>'
 
     def update_graph(self, graphs, x_bounds=None, y_bounds=None):
         if self.hide_graph: return
