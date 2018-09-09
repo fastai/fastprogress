@@ -51,7 +51,7 @@ class ProgressBar():
             self.pred_t = 0
             self.last_v,self.wait_for = 0,1
             self.update_bar(0)
-        elif val >= self.last_v + self.wait_for:
+        elif val >= self.last_v + self.wait_for or val == self.total:
             cur_t = time()
             avg_t = (cur_t - self.start_t) / val
             self.wait_for = max(int(self.update_every / (avg_t+1e-8)),1)
