@@ -54,7 +54,7 @@ class ProgressBar():
         elif val >= self.last_v + self.wait_for:
             cur_t = time()
             avg_t = (cur_t - self.start_t) / val
-            self.wait_for = max(int(self.update_every / avg_t),1)
+            self.wait_for = max(int(self.update_every / (avg_t+1e-8)),1)
             self.pred_t = avg_t * self.total
             self.last_v,self.last_t = val,cur_t
             self.update_bar(val)
@@ -109,15 +109,29 @@ class NBMasterBar(MasterBar):
     names = ['train', 'valid']
     def __init__(self, gen, hide_graph=False, order=None):
         super().__init__(gen, NBProgressBar)
+        self.report = []
         self.text = HTML()
         self.vbox = VBox([self.first_bar.box, self.text])
         if order is None: order = ['pb1', 'text', 'pb2', 'graph']
         self.inner_dict = {'pb1':self.first_bar.box, 'text':self.text}
         self.hide_graph,self.order = hide_graph,order
 
-    def on_iter_begin(self): display(self.vbox)
+    def on_iter_begin(self): 
+        self.start_t = self.last_t = time()
+        display(self.vbox)
+
     def on_iter_end(self):
-        if hasattr(self, 'fig'): self.fig.clear()
+        #if hasattr(self, 'fig'): self.fig.clear()
+        total_time = format_time(time() - self.start_t)
+        end_report = f'Total time: {total_time}\n'
+        max_len = 0
+        for item in self.report:
+            if len(item[0]) > max_len: max_len = len(item[0])
+        for item in self.report:
+            ending = f'  ({item[1]})\n' if item[1] != '' else '\n'
+            end_report += item[0] + (' ' * (max_len-len(item[0]))) + ending
+        self.vbox.close()
+        print(end_report)
 
     def add_child(self, child):
         self.child = child
@@ -129,7 +143,14 @@ class NBMasterBar(MasterBar):
         to_show = [name for name in self.order if name in child_names]
         self.vbox.children = [self.inner_dict[n] for n in to_show]
 
-    def write(self, line): self.text.value += line + '<p>'
+    def write(self, line):
+        if hasattr(self, 'last_t'):
+            cur_time = time()
+            elapsed_time = format_time(cur_time - self.last_t)
+            self.last_t = cur_time
+        else: elapsed_time = ''
+        self.report.append([line, elapsed_time])
+        self.text.value = '<pre>' + '\n'.join([o[0] for o in self.report]) + '</pre>'
 
     def update_graph(self, graphs, x_bounds=None, y_bounds=None):
         if self.hide_graph: return
