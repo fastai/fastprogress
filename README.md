@@ -6,6 +6,14 @@ Copyright 2017 onwards, fast.ai. Licensed under the Apache License, Version 2.0 
 
 <img src="cifar_train.gif" width="600">
 
+## Install
+
+To install simply use
+```
+pip install fast_progress
+```
+Note that this requires python 3.6 or later.
+
 ## Usage
 
 Here is a simple example. Each bar takes a generator as a main argument, and we can specify the second bar is nested with the first by adding the argument parent=mb. We can then
@@ -62,3 +70,4 @@ Here is the rendering in console:
 
 <img src="pb_console.gif" width="800">
 
+If the script using this is executed with a redirect to a file, only the results of the .write method will be printed in that file.

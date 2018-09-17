@@ -1,4 +1,5 @@
 from time import time
+from sys import stdout
 
 try:
     from ipykernel.kernelapp import IPKernelApp
@@ -20,8 +21,9 @@ def format_time(t):
 class ProgressBar():
     update_every = 0.2
 
-    def __init__(self, gen, display=True, leave=True, parent=None):
-        self._gen,self.total = gen,len(gen)
+    def __init__(self, gen, total=None, display=True, leave=True, parent=None):
+        self._gen = gen
+        self.total = len(gen) if total is None else total
         if parent is None: self.leave,self.display = leave,display
         else:
             self.leave,self.display=False,False
@@ -68,7 +70,7 @@ class ProgressBar():
 
 
 class MasterBar():
-    def __init__(self, gen, cls): self.first_bar = cls(gen, display=False)
+    def __init__(self, gen, cls, total=None): self.first_bar = cls(gen, total=total, display=False)
 
     def __iter__(self):
         self.on_iter_begin()
@@ -83,10 +85,10 @@ class MasterBar():
 
 
 class NBProgressBar(ProgressBar):
-    def __init__(self,gen, display=True, leave=True, parent=None):
-        self.progress,self.text = IntProgress(min=0, max=len(gen)), HTML()
+    def __init__(self, gen, total=None, display=True, leave=True, parent=None):
+        self.progress,self.text = IntProgress(min=0, max=len(gen) if total is None else total), HTML()
         self.box = HBox([self.progress, self.text])
-        super().__init__(gen, display, leave, parent)
+        super().__init__(gen, total, display, leave, parent)
 
     def on_iter_begin(self):
         if self.display: display(self.box)
@@ -107,8 +109,8 @@ class NBProgressBar(ProgressBar):
 
 class NBMasterBar(MasterBar):
     names = ['train', 'valid']
-    def __init__(self, gen, hide_graph=False, order=None):
-        super().__init__(gen, NBProgressBar)
+    def __init__(self, gen, total=None, hide_graph=False, order=None):
+        super().__init__(gen, NBProgressBar, total)
         self.report = []
         self.text = HTML()
         self.vbox = VBox([self.first_bar.box, self.text])
@@ -176,12 +178,12 @@ class ConsoleProgressBar(ProgressBar):
     length:int=50
     fill:str='█'
 
-    def __init__(self,gen, display=True, leave=True, parent=None):
+    def __init__(self, gen, total=None, display=True, leave=True, parent=None):
         self.max_len,self.prefix = 0,''
-        super().__init__(gen, display, leave, parent)
+        super().__init__(gen, total, display, leave, parent)
 
     def on_iter_end(self):
-        if not self.leave:
+        if not self.leave and stdout.isatty():
             print(f'\r{self.prefix}' + ' ' * (self.max_len - len(f'\r{self.prefix}')), end = '\r')
 
     def on_update(self, val, text):
@@ -190,11 +192,12 @@ class ConsoleProgressBar(ProgressBar):
             bar = self.fill * filled_len + '-' * (self.length - filled_len)
             to_write = f'\r{self.prefix} |{bar}| {text}'
             if len(to_write) > self.max_len: self.max_len=len(to_write)
-            print(to_write, end = '\r')
+            if stdout.isatty(): print(to_write, end = '\r')
 
 
 class ConsoleMasterBar(MasterBar):
-    def __init__(self, gen, hide_graph=False, order=None): super().__init__(gen, ConsoleProgressBar)
+    def __init__(self, gen, total=None, hide_graph=False, order=None): 
+        super().__init__(gen, ConsoleProgressBar, total)
 
     def add_child(self, child):
         self.child = child
