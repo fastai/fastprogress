@@ -1,14 +1,25 @@
 from time import time
 from sys import stdout
 
-try:
+def isnotebook():
+    try:
+        shell = get_ipython().__class__.__name__
+        if shell == 'ZMQInteractiveShell':
+            return True   # Jupyter notebook, Spyder or qtconsole
+        elif shell == 'TerminalInteractiveShell':
+            return False  # Terminal running IPython
+        else:
+            return False  # Other type (?)
+    except NameError:
+        return False      # Probably standard Python interpreter
+
+IN_NOTEBOOK = isnotebook()
+if IN_NOTEBOOK:
     from ipykernel.kernelapp import IPKernelApp
     from ipywidgets import widgets, IntProgress, HBox, HTML, VBox
     from IPython.display import clear_output, display
     from ipywidgets.widgets.interaction import show_inline_matplotlib_plots
     import matplotlib.pyplot as plt
-    IN_NOTEBOOK = IPKernelApp.initialized()
-except: IN_NOTEBOOK = False
 
 __all__ = ['master_bar', 'progress_bar']
 
@@ -183,7 +194,7 @@ class ConsoleProgressBar(ProgressBar):
         super().__init__(gen, total, display, leave, parent)
 
     def on_iter_end(self):
-        if not self.leave and stdout.isatty():
+        if not self.leave and printing():
             print(f'\r{self.prefix}' + ' ' * (self.max_len - len(f'\r{self.prefix}')), end = '\r')
 
     def on_update(self, val, text):
@@ -192,7 +203,7 @@ class ConsoleProgressBar(ProgressBar):
             bar = self.fill * filled_len + '-' * (self.length - filled_len)
             to_write = f'\r{self.prefix} |{bar}| {text}'
             if len(to_write) > self.max_len: self.max_len=len(to_write)
-            if stdout.isatty(): print(to_write, end = '\r')
+            if printing(): print(to_write, end = '\r')
 
 
 class ConsoleMasterBar(MasterBar):
@@ -207,6 +218,13 @@ class ConsoleMasterBar(MasterBar):
     def write(self, line): print(line)
 
 
+NO_BAR = False
+
+def printing():
+    return False if NO_BAR else (stdout.isatty() or IN_NOTEBOOK)
+
 if IN_NOTEBOOK: master_bar, progress_bar = NBMasterBar, NBProgressBar
 else:           master_bar, progress_bar = ConsoleMasterBar, ConsoleProgressBar
 
+def force_console_behavior(): 
+    return ConsoleMasterBar, ConsoleProgressBar
