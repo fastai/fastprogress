@@ -4,8 +4,8 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="fast_progress",
-    version="0.1.4",
+    name="fastprogress",
+    version="0.1.5",
     author="Sylvain Gugger",
 	license = "Apache License 2.0",
     description="A nested progress with plotting options for fastai",
