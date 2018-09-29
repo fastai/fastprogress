@@ -32,8 +32,9 @@ def format_time(t):
 class ProgressBar():
     update_every = 0.2
 
-    def __init__(self, gen, total=None, display=True, leave=True, parent=None):
+    def __init__(self, gen, total=None, display=True, leave=True, parent=None, auto_update=True):
         self._gen = gen
+        self.auto_update = auto_update
         self.total = len(gen) if total is None else total
         if parent is None: self.leave,self.display = leave,display
         else:
@@ -52,7 +53,7 @@ class ProgressBar():
         try:
             for i,o in enumerate(self._gen):
                 yield o
-                self.update(i+1)
+                if self.auto_update: self.update(i+1)
         except: 
             self.on_interrupt()
             raise
