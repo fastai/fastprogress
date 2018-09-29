@@ -97,10 +97,10 @@ class MasterBar():
 
 
 class NBProgressBar(ProgressBar):
-    def __init__(self, gen, total=None, display=True, leave=True, parent=None):
+    def __init__(self, gen, total=None, display=True, leave=True, parent=None, auto_update=True):
         self.progress,self.text = IntProgress(min=0, max=len(gen) if total is None else total), HTML()
         self.box = HBox([self.progress, self.text])
-        super().__init__(gen, total, display, leave, parent)
+        super().__init__(gen, total, display, leave, parent, auto_update)
 
     def on_iter_begin(self):
         if self.display: display(self.box)
@@ -190,9 +190,9 @@ class ConsoleProgressBar(ProgressBar):
     length:int=50
     fill:str='█'
 
-    def __init__(self, gen, total=None, display=True, leave=True, parent=None):
+    def __init__(self, gen, total=None, display=True, leave=True, parent=None, auto_update=True):
         self.max_len,self.prefix = 0,''
-        super().__init__(gen, total, display, leave, parent)
+        super().__init__(gen, total, display, leave, parent, auto_update)
 
     def on_iter_end(self):
         if not self.leave and printing():
