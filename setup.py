@@ -11,7 +11,7 @@ setuptools.setup(
     description="A nested progress with plotting options for fastai",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/fastai/fast_progress",
+    url="https://github.com/fastai/fastprogress",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3.6"

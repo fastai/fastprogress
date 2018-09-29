@@ -1,4 +1,4 @@
-# fast_progress
+# fastprogress
 
 A fast and simple progress bar for Jupyter Notebook and console. Created by Sylvain Gugger for fast.ai.
 
@@ -10,7 +10,7 @@ Copyright 2017 onwards, fast.ai. Licensed under the Apache License, Version 2.0 
 
 To install simply use
 ```
-pip install fast_progress
+pip install fastprogress
 ```
 Note that this requires python 3.6 or later.
 
@@ -22,7 +22,7 @@ Here is a simple example. Each bar takes a generator as a main argument, and we 
 - write a line between the two bars with mb.write('message')
 
 ``` python
-from fast_progress import master_bar, progress_bar
+from fastprogress import master_bar, progress_bar
 from time import sleep
 mb = master_bar(range(10))
 for i in mb:
