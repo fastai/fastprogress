@@ -41,6 +41,8 @@ class ProgressBar():
             self.leave,self.display=False,False
             parent.add_child(self)
         self.comment = ''
+        self.on_iter_begin()
+        self.update(0)
 
     def on_iter_begin(self): pass
     def on_interrupt(self): pass
@@ -54,7 +56,7 @@ class ProgressBar():
             for i,o in enumerate(self._gen):
                 yield o
                 if self.auto_update: self.update(i+1)
-        except: 
+        except:
             self.on_interrupt()
             raise
         self.on_iter_end()
@@ -130,7 +132,7 @@ class NBMasterBar(MasterBar):
         self.inner_dict = {'pb1':self.first_bar.box, 'text':self.text}
         self.hide_graph,self.order = hide_graph,order
 
-    def on_iter_begin(self): 
+    def on_iter_begin(self):
         self.start_t = self.last_t = time()
         display(self.vbox)
 
@@ -208,7 +210,7 @@ class ConsoleProgressBar(ProgressBar):
 
 
 class ConsoleMasterBar(MasterBar):
-    def __init__(self, gen, total=None, hide_graph=False, order=None): 
+    def __init__(self, gen, total=None, hide_graph=False, order=None):
         super().__init__(gen, ConsoleProgressBar, total)
 
     def add_child(self, child):
@@ -227,5 +229,5 @@ def printing():
 if IN_NOTEBOOK: master_bar, progress_bar = NBMasterBar, NBProgressBar
 else:           master_bar, progress_bar = ConsoleMasterBar, ConsoleProgressBar
 
-def force_console_behavior(): 
+def force_console_behavior():
     return ConsoleMasterBar, ConsoleProgressBar
