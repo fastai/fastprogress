@@ -47,7 +47,7 @@ To build a Conda package and release it on [anaconda.org](​https://anaconda.or
 2. Upload
 
    ```
-   anaconda upload /path/to/fastai-xxx.tar.bz2 -u fastai
+   anaconda upload /path/to/fastprogress-xxx.tar.bz2 -u fastai
    ```
 
 3. Test
