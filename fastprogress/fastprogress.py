@@ -1,5 +1,6 @@
 from time import time
 from sys import stdout
+from warnings import warn
 
 def isnotebook():
     try:
@@ -15,11 +16,15 @@ def isnotebook():
 
 IN_NOTEBOOK = isnotebook()
 if IN_NOTEBOOK:
-    from ipykernel.kernelapp import IPKernelApp
-    from ipywidgets import widgets, IntProgress, HBox, HTML, VBox
-    from IPython.display import clear_output, display
-    from ipywidgets.widgets.interaction import show_inline_matplotlib_plots
-    import matplotlib.pyplot as plt
+    try:
+        from ipykernel.kernelapp import IPKernelApp
+        from ipywidgets import widgets, IntProgress, HBox, HTML, VBox
+        from IPython.display import clear_output, display
+        from ipywidgets.widgets.interaction import show_inline_matplotlib_plots
+        import matplotlib.pyplot as plt
+    except:
+        warn("Couldn't import ipywidgets properly, progress bar will use console behavior")
+        IN_NOTEBOOK = False
 
 __all__ = ['master_bar', 'progress_bar']
 
