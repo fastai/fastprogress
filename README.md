@@ -14,7 +14,7 @@ pip install fastprogress
 ```
 or:
 ```
-conda install fastprogress
+conda install -c fastai fastprogress 
 ```
 Note that this requires python 3.6 or later.
 
