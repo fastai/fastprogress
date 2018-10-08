@@ -18,6 +18,7 @@ env/
 build/
 develop-eggs/
 dist/
+conda-dist/
 downloads/
 eggs/
 .eggs/
