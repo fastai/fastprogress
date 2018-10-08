@@ -16,11 +16,13 @@ make release
 make tag
 ```
 
-Test uploads:
+Test uploads by installing them:
 ```
 pip install fastprogress
 conda install -c fastai fastprogress
 ```
+
+If this was a bug fix, update `fastai` dependency files: `conda/meta.yaml` and `setup.py` with this release's `fastprogress` version number.
 
 ## Detailed information
 
@@ -32,7 +34,7 @@ Edit `setup.py` and change the version number.
 
 ### PyPI
 
-To build a PyPI package and release it on [pypi.org/](https://pypi.org/project/fastai/):
+To build a PyPI package and release it on [pypi.org/](https://pypi.org/project/fastprogress/):
 
 1. Build the package (source and wheel)
 
@@ -78,7 +80,11 @@ To build a Conda package and release it on [anaconda.org](https://anaconda.org/f
 
    ```
 
-3. Test
+3. Test that the uploaded package is found and gets installed:
+
+   Test the webpage so that the description looks correct: [https://pypi.org/project/fastprogress/](https://pypi.org/project/fastprogress/)
+
+   Test installation:
 
    ```
    conda install -c fastai fastprogress
