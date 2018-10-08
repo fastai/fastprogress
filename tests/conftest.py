@@ -4,7 +4,7 @@
 import sys
 from os.path import abspath, dirname
 
-# make sure we test against the checked out git version of fastai and
+# make sure we test against the checked out git version of fastprogress and
 # not the pre-installed version. With 'pip install -e .' it's not
 # needed, but it's better to be safe and ensure the git path comes
 # second in sys.path (the first path is the test dir path)

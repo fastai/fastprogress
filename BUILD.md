@@ -19,7 +19,7 @@ make tag
 Test uploads:
 ```
 pip install fastprogress
-conda install -f fastai fastprogress
+conda install -c fastai fastprogress
 ```
 
 ## Detailed information
@@ -50,7 +50,7 @@ To build a PyPI package and release it on [pypi.org/](https://pypi.org/project/f
 
 3. Test that the uploaded package is found and gets installed:
 
-   Test the webpage: [https://pypi.org/project/fastai/](https://pypi.org/project/fastai/)
+   Test the webpage so that the description looks correct: [https://pypi.org/project/fastprogress/](https://pypi.org/project/fastprogress/)
 
    Test installation:
 
@@ -62,9 +62,9 @@ To build a PyPI package and release it on [pypi.org/](https://pypi.org/project/f
 
 ### Conda
 
-To build a Conda package and release it on [anaconda.org](​https://anaconda.org/​):
+To build a Conda package and release it on [anaconda.org](https://anaconda.org/fastai/fastprogress):
 
-1. Build the fastprogress package (include the `pytorch` channel, for `torch/` dependencies, and fastai test channel for `torchvision/fastai`):
+1. Build the fastprogress package:
 
    ```
    make dist-conda
@@ -81,5 +81,5 @@ To build a Conda package and release it on [anaconda.org](​https://anaconda.or
 3. Test
 
    ```
-   conda install -f fastai fastprogress
+   conda install -c fastai fastprogress
    ```
