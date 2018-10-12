@@ -61,7 +61,7 @@ Or run one of these `make` targets:
    bump-dev           | alias to bump-patch-dev (as it's used often)
 
 
-We use semver version convention w/o python adjustment to `.devX`, instead of `-devX`:
+We use the semver version convention w/ python adjustment to `.devX`, instead of `-devX`:
 
 * release: `major.minor.patch`, 0.1.10
 * dev or rc: `major.minor.patch.devX`, 0.1.10.dev0
