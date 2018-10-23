@@ -198,7 +198,7 @@ class NBMasterBar(MasterBar):
 
 class ConsoleProgressBar(ProgressBar):
     length:int=50
-    fill:str='█'
+    fill:str='█'.encode("utf-8").decode("latin1")
 
     def __init__(self, gen, total=None, display=True, leave=True, parent=None, auto_update=True):
         self.max_len,self.prefix = 0,''
