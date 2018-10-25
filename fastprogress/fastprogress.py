@@ -46,6 +46,9 @@ class ProgressBar():
             self.leave,self.display=False,False
             parent.add_child(self)
         self.comment = ''
+        if not self.auto_update:
+            self.on_iter_begin()
+            self.update(0)
 
     def on_iter_begin(self): pass
     def on_interrupt(self): pass
@@ -77,6 +80,8 @@ class ProgressBar():
             self.pred_t = avg_t * self.total
             self.last_v,self.last_t = val,cur_t
             self.update_bar(val)
+            if not self.auto_update and val >= self.total:
+                self.on_iter_end()
 
     def update_bar(self, val):
         elapsed_t = self.last_t - self.start_t
