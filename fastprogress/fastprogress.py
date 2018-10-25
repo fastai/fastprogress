@@ -17,10 +17,7 @@ def isnotebook():
 IN_NOTEBOOK = isnotebook()
 if IN_NOTEBOOK:
     try:
-        from ipykernel.kernelapp import IPKernelApp
-        from ipywidgets import widgets, IntProgress, HBox, HTML, VBox
-        from IPython.display import clear_output, display
-        from ipywidgets.widgets.interaction import show_inline_matplotlib_plots
+        from IPython.display import clear_output, display, HTML
         import matplotlib.pyplot as plt
     except:
         warn("Couldn't import ipywidgets properly, progress bar will use console behavior")
@@ -119,7 +116,7 @@ def html_progress_bar(value, total, label):
 
 class NBProgressBar(ProgressBar):
     def __init__(self, gen, total=None, display=True, leave=True, parent=None, auto_update=True):
-        self.progress = html_progress_bar(0, self.total, "")
+        self.progress = html_progress_bar(0, len(gen) if total is None else total, "")
         super().__init__(gen, total, display, leave, parent, auto_update)
 
     def on_iter_begin(self):
@@ -132,11 +129,11 @@ class NBProgressBar(ProgressBar):
         self.is_active=False
 
     def on_iter_end(self):
-        if not self.leave and self.display: self.out.update(HTML(""))
+        if not self.leave and self.display: clear_output()
         self.is_active=False
 
     def on_update(self, val, text):
-        self.progress = html_progress_bar(val, self.max, text)
+        self.progress = html_progress_bar(val, self.total, text)
         if self.display:
             self.out.update(HTML(self.progress))
         elif self.parent is not None: self.parent.show()
