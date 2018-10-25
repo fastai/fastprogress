@@ -114,6 +114,16 @@ def html_progress_bar(value, total, label):
     </div>
     """
 
+def text2html_table(text):
+    first_line = text.split('\n')[0].split(' ')
+    num_items = len([o for o in first_line if len(o) >= 1])
+    html_code = f"<table style='width:{max(300, 75*num_items)}px; margin-bottom:10px'>\n"
+    for line in text.split('\n'):
+        html_code += "  <tr>\n"
+        html_code += "\n".join([f"    <th>{o}</th>" for o in line.split(' ') if len(o) >= 1])
+        html_code += "\n  </tr>\n"
+    return html_code + "</table>\n"
+
 class NBProgressBar(ProgressBar):
     def __init__(self, gen, total=None, display=True, leave=True, parent=None, auto_update=True):
         self.progress = html_progress_bar(0, len(gen) if total is None else total, "")
@@ -143,7 +153,7 @@ class NBMasterBar(MasterBar):
     def __init__(self, gen, total=None, hide_graph=False, order=None):
         super().__init__(gen, NBProgressBar, total)
         self.report = []
-        self.text = ""
+        self.text,self.raw_text = "",""
         self.html_code = '\n'.join([self.first_bar.progress, self.text])
         if order is None: order = ['pb1', 'text', 'pb2']
         self.inner_dict = {'pb1':self.first_bar.progress, 'text':self.text}
@@ -178,14 +188,17 @@ class NBMasterBar(MasterBar):
         self.html_code = '\n'.join([self.inner_dict[n] for n in to_show])
         self.out.update(HTML(self.html_code))
 
-    def write(self, line):
+    def write(self, line, table=False):
         if hasattr(self, 'last_t'):
             cur_time = time()
             elapsed_time = format_time(cur_time - self.last_t)
             self.last_t = cur_time
         else: elapsed_time = ''
         self.report.append([line, elapsed_time])
-        self.text += line + '<p>'
+        if not table: self.text += line + "<p>"
+        else:
+            self.raw_text += line + "\n"
+            self.text = text2html_table(self.raw_text)
 
     def update_graph(self, graphs, x_bounds=None, y_bounds=None):
         if self.hide_graph: return
@@ -230,7 +243,7 @@ class ConsoleMasterBar(MasterBar):
         self.child.prefix = f'Epoch {self.first_bar.last_v+1}/{self.first_bar.total} :'
         self.child.display = True
 
-    def write(self, line): print(line)
+    def write(self, line, table=False): print(line)
 
 
 NO_BAR = False
