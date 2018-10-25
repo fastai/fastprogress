@@ -87,7 +87,7 @@ class ProgressBar():
         elapsed_t = format_time(elapsed_t)
         end = '' if len(self.comment) == 0 else f' {self.comment}'
         if self.total == 0:
-            warn("You generator is empty.")
+            warn("Your generator is empty.")
             self.on_update(0, '100% [0/0]')
         else: self.on_update(val, f'{100 * val/self.total:.2f}% [{val}/{self.total} {elapsed_t}<{remaining_t}{end}]')
 
