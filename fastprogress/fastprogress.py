@@ -41,6 +41,7 @@ class ProgressBar():
         self._gen = gen
         self.auto_update = auto_update
         self.total = len(gen) if total is None else total
+        self.parent = parent
         if parent is None: self.leave,self.display = leave,display
         else:
             self.leave,self.display=False,False
@@ -118,8 +119,7 @@ def html_progress_bar(value, total, label):
 
 class NBProgressBar(ProgressBar):
     def __init__(self, gen, total=None, display=True, leave=True, parent=None, auto_update=True):
-        self.max = len(gen) if total is None else total
-        self.progress = html_progress_bar(0, self.max, "")
+        self.progress = html_progress_bar(0, self.total, "")
         super().__init__(gen, total, display, leave, parent, auto_update)
 
     def on_iter_begin(self):
