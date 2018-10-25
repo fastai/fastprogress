@@ -17,10 +17,7 @@ def isnotebook():
 IN_NOTEBOOK = isnotebook()
 if IN_NOTEBOOK:
     try:
-        from ipykernel.kernelapp import IPKernelApp
-        from ipywidgets import widgets, IntProgress, HBox, HTML, VBox
-        from IPython.display import clear_output, display
-        from ipywidgets.widgets.interaction import show_inline_matplotlib_plots
+        from IPython.display import clear_output, display, HTML
         import matplotlib.pyplot as plt
     except:
         warn("Couldn't import ipywidgets properly, progress bar will use console behavior")
@@ -41,13 +38,15 @@ class ProgressBar():
         self._gen = gen
         self.auto_update = auto_update
         self.total = len(gen) if total is None else total
+        self.parent = parent
         if parent is None: self.leave,self.display = leave,display
         else:
             self.leave,self.display=False,False
             parent.add_child(self)
         self.comment = ''
-        self.on_iter_begin()
-        self.update(0)
+        if not self.auto_update:
+            self.on_iter_begin()
+            self.update(0)
 
     def on_iter_begin(self): pass
     def on_interrupt(self): pass
@@ -79,6 +78,8 @@ class ProgressBar():
             self.pred_t = avg_t * self.total
             self.last_v,self.last_t = val,cur_t
             self.update_bar(val)
+            if not self.auto_update and val >= self.total:
+                self.on_iter_end()
 
     def update_bar(self, val):
         elapsed_t = self.last_t - self.start_t
@@ -105,44 +106,52 @@ class MasterBar():
     def write(self, line):      pass
     def update_graph(self, graphs, x_bounds, y_bounds): pass
 
+def html_progress_bar(value, total, label):
+    return f"""
+    <div>
+      <progress value='{value}' max='{total}', style='width:300px; height:20px; vertical-align: middle;'></progress>
+      {label}
+    </div>
+    """
 
 class NBProgressBar(ProgressBar):
     def __init__(self, gen, total=None, display=True, leave=True, parent=None, auto_update=True):
-        self.progress,self.text = IntProgress(min=0, max=len(gen) if total is None else total), HTML()
-        self.box = HBox([self.progress, self.text])
+        self.progress = html_progress_bar(0, len(gen) if total is None else total, "")
         super().__init__(gen, total, display, leave, parent, auto_update)
 
     def on_iter_begin(self):
-        if self.display: display(self.box)
+        if self.display: 
+            self.out = display(HTML(self.progress), display_id=True)
         self.is_active=True
 
     def on_interrupt(self):
-        self.progress.bar_style = 'danger'
+        #self.progress.bar_style = 'danger'
         self.is_active=False
 
     def on_iter_end(self):
-        if not self.leave: self.box.close()
+        if not self.leave and self.display: clear_output()
         self.is_active=False
 
     def on_update(self, val, text):
-        self.text.value = text
-        self.progress.value = val
-
+        self.progress = html_progress_bar(val, self.total, text)
+        if self.display:
+            self.out.update(HTML(self.progress))
+        elif self.parent is not None: self.parent.show()
 
 class NBMasterBar(MasterBar):
     names = ['train', 'valid']
     def __init__(self, gen, total=None, hide_graph=False, order=None):
         super().__init__(gen, NBProgressBar, total)
         self.report = []
-        self.text = HTML()
-        self.vbox = VBox([self.first_bar.box, self.text])
-        if order is None: order = ['pb1', 'text', 'pb2', 'graph']
-        self.inner_dict = {'pb1':self.first_bar.box, 'text':self.text}
+        self.text = ""
+        self.html_code = '\n'.join([self.first_bar.progress, self.text])
+        if order is None: order = ['pb1', 'text', 'pb2']
+        self.inner_dict = {'pb1':self.first_bar.progress, 'text':self.text}
         self.hide_graph,self.order = hide_graph,order
 
     def on_iter_begin(self):
         self.start_t = self.last_t = time()
-        display(self.vbox)
+        self.out = display(HTML(self.html_code), display_id=True)
 
     def on_iter_end(self):
         #if hasattr(self, 'fig'): self.fig.clear()
@@ -154,18 +163,20 @@ class NBMasterBar(MasterBar):
         for item in self.report:
             ending = f'  ({item[1]})\n' if item[1] != '' else '\n'
             end_report += item[0] + (' ' * (max_len-len(item[0]))) + ending
-        self.vbox.close()
+        clear_output()
         print(end_report)
 
     def add_child(self, child):
         self.child = child
-        self.inner_dict['pb2'] = self.child.box
-        if hasattr(self,'out'): self.show(['pb1', 'pb2', 'text', 'graph'])
-        else:                   self.show(['pb1', 'pb2', 'text'])
-
-    def show(self, child_names):
-        to_show = [name for name in self.order if name in child_names]
-        self.vbox.children = [self.inner_dict[n] for n in to_show]
+        self.inner_dict['pb2'] = self.child.progress
+        self.show()
+        
+    def show(self):
+        self.inner_dict['pb1'], self.inner_dict['text'] = self.first_bar.progress, self.text
+        if 'pb2' in self.inner_dict: self.inner_dict['pb2'] = self.child.progress
+        to_show = [name for name in self.order if name in self.inner_dict.keys()]
+        self.html_code = '\n'.join([self.inner_dict[n] for n in to_show])
+        self.out.update(HTML(self.html_code))
 
     def write(self, line):
         if hasattr(self, 'last_t'):
@@ -174,27 +185,20 @@ class NBMasterBar(MasterBar):
             self.last_t = cur_time
         else: elapsed_time = ''
         self.report.append([line, elapsed_time])
-        self.text.value += line + '<p>'
+        self.text += line + '<p>'
 
     def update_graph(self, graphs, x_bounds=None, y_bounds=None):
         if self.hide_graph: return
-        self.out = widgets.Output()
         if not hasattr(self, 'fig'):
             self.fig, self.ax = plt.subplots(1, figsize=(6,4))
-        self.out = widgets.Output()
-        self.inner_dict['graph'] = self.out
+            self.out2 = display(self.ax.figure, display_id=True)
         self.ax.clear()
         if len(self.names) < len(graphs): self.names += [''] * (len(graphs) - len(self.names))
         for g,n in zip(graphs,self.names): self.ax.plot(*g, label=n)
         self.ax.legend(loc='upper right')
         if x_bounds is not None: self.ax.set_xlim(*x_bounds)
         if y_bounds is not None: self.ax.set_ylim(*y_bounds)
-        with self.out:
-            clear_output(wait=True)
-            display(self.ax.figure)
-        if hasattr(self,'child') and self.child.is_active: self.show(['pb1', 'pb2', 'text', 'graph'])
-        else: self.show(['pb1', 'text', 'graph'])
-
+        self.out2.update(self.ax.figure)
 
 class ConsoleProgressBar(ProgressBar):
     length:int=50
