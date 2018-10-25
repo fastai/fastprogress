@@ -156,6 +156,8 @@ git-not-dirty:
 	@if [ -n "$(shell git status -s)" ]; then\
 		echo "git status is not clean. You have uncommitted git files";\
 		exit 1;\
+	else\
+		echo "git status is clean";\
     fi
 
 commit-tag: ## commit and tag the release
