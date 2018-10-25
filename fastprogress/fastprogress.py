@@ -109,7 +109,7 @@ class MasterBar():
 def html_progress_bar(value, total, label):
     return f"""
     <div>
-      <progress value='{value}' max='{total}', style='width:300px; height:20px'></progress>
+      <progress value='{value}' max='{total}', style='width:300px; height:20px; vertical-align: middle;'></progress>
       {label}
     </div>
     """
