@@ -153,8 +153,7 @@ git-pull: ## git pull
 
 git-not-dirty:
 	@echo "*** Checking that everything is committed"
-	echo $(git status -s)
-	@if [ -n $(git status -s) ]; then\
+	@if [ -n "$(shell git status -s)" ]; then\
 		echo "git status is not clean. You have uncommitted git files";\
 		exit 1;\
     fi
