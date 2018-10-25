@@ -1,7 +1,17 @@
-## Build and Release Instructions
+# Build and Release Instructions
+
+## Magic
+
+This does it all:
+```
+make release
+```
+
+If this was a bug fix, update `fastai` dependency files: `conda/meta.yaml` and `setup.py` with this release's `fastprogress` version number.
 
 ## TL;DR
 
+A step-by-step release process, if something goes wrong during the auto-pilot.
 
 1. Test code:
    ```
@@ -23,7 +33,8 @@
 3. Release:
 
    ```
-   make release
+   make dist
+   make upload
    ```
 
 4. Test uploads by installing them:
@@ -83,7 +94,7 @@ To build a PyPI package and release it on [pypi.org/](https://pypi.org/project/f
 2. Publish:
 
    ```
-   make release-pypi
+   make upload-pypi
    ```
 
    Note: PyPI won't allow re-uploading the same package filename, even if it's a minor fix. If you delete the file from pypi or test.pypi it still won't let you do it. So either a patch-level version needs to be bumped (A.B.C++) or some [post release string added](https://www.python.org/dev/peps/pep-0440/#post-releases) in `version.py`.
@@ -114,7 +125,7 @@ To build a Conda package and release it on [anaconda.org](https://anaconda.org/f
 2. Upload
 
    ```
-   make release-conda
+   make upload-conda
 
    ```
 

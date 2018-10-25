@@ -1,24 +1,58 @@
 # usage: make help
 
-.PHONY: clean clean-test clean-pyc clean-build docs help clean-pypi clean-build-pypi clean-pyc-pypi clean-test-pypi dist-pypi release-pypi clean-conda clean-build-conda clean-pyc-conda clean-test-conda test tag bump bump-minor bump-major bump-dev bump-minor-dev bump-major-dev commit-tag git-pull git-not-dirty test-install
+.PHONY: clean clean-test clean-pyc clean-build docs help clean-pypi clean-build-pypi clean-pyc-pypi clean-test-pypi dist-pypi upload-pypi clean-conda clean-build-conda clean-pyc-conda clean-test-conda dist-conda upload-conda test tag bump bump-minor bump-major bump-dev bump-minor-dev bump-major-dev commit-tag git-pull git-not-dirty test-install upload release
 
 version_file = fastprogress/version.py
 version = $(shell python setup.py --version)
 
 .DEFAULT_GOAL := help
 
-define BROWSER_PYSCRIPT
-import os, webbrowser, sys
 
-try:
-	from urllib import pathname2url
-except:
-	from urllib.request import pathname2url
+define WAIT_TILL_PIP_VER_IS_AVAILABLE_BASH =
+# note that when:
+# bash -c "command" arg1
+# is called, the first argument is actually $0 and not $1 as it's inside bash!
+#
+# is_pip_ver_available "1.0.14"
+# returns (echo's) 1 if yes, 0 otherwise
+#
+# since pip doesn't have a way to check whether a certain version is available,
+# here we are using a hack, calling:
+# pip install fastprogress==
+# which doesn't find the unspecified version and returns all available
+# versions instead, which is what we search
+function is_pip_ver_available() {
+    local ver="$$0"
+    local out="$$(pip install fastprogress== |& grep $$ver)"
+    if [[ -n "$$out" ]]; then
+        echo 1
+    else
+        echo 0
+    fi
+}
 
-webbrowser.open("file://" + pathname2url(os.path.abspath(sys.argv[1])))
+function wait_till_pip_ver_is_available() {
+    local ver="$$1"
+    if [[ $$(is_pip_ver_available $$ver) == "1" ]]; then
+        echo "fastprogress-$$ver is available on pypi"
+        return 0
+    fi
+
+    COUNTER=0
+    echo "waiting for fastprogress-$$ver package to become visible on pypi:"
+    while [[ $$(is_pip_ver_available $$ver) != "1" ]]; do
+        echo -en "\\rwaiting: $$COUNTER secs"
+        COUNTER=$$[$$COUNTER +5]
+	    sleep 5
+    done
+    echo -e "\rwaited: $$COUNTER secs    "
+    echo -e "fastprogress-$$ver is now available on pypi"
+}
+
+echo "checking version $$0"
+wait_till_pip_ver_is_available "$$0"
 endef
-export BROWSER_PYSCRIPT
-
+export WAIT_TILL_PIP_VER_IS_AVAILABLE_BASH
 
 help: ## this help
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2 } /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } ' $(MAKEFILE_LIST)
@@ -53,7 +87,7 @@ dist-pypi: clean-pypi ## build pypi source and wheel package
 	python setup.py bdist_wheel
 	ls -l dist
 
-release-pypi: dist-pypi ## release pypi package
+upload-pypi: dist-pypi ## release pypi package
 	@echo "\n\n*** Uploading" dist/* "to pypi\n"
 	twine upload dist/*
 
@@ -78,7 +112,7 @@ dist-conda: clean-conda ## build conda package
 	conda-build ./conda/ --output-folder conda-dist
 	ls -l conda-dist/noarch/*tar.bz2
 
-release-conda: dist-conda ## release conda package
+upload-conda: dist-conda ## release conda package
 	@echo "\n\n*** Uploading" conda-dist/noarch/*tar.bz2 "to fastai@anaconda.org\n"
 	anaconda upload conda-dist/noarch/*tar.bz2 -u fastai
 
@@ -92,7 +126,7 @@ clean: clean-pypi clean-conda ## clean pip && conda package
 
 dist: clean dist-pypi dist-conda ## build pip && conda package
 
-release: dist release-pypi release-conda ## release pip && conda package
+upload: upload-pypi upload-conda ## release pip && conda package
 
 install: clean ## install the package to the active python's site-packages
 	python setup.py install
@@ -100,6 +134,15 @@ install: clean ## install the package to the active python's site-packages
 test: ## run tests with the default python
 	python setup.py --quiet test
 
+release: ## do it all (other than testing)
+	${MAKE} git-pull
+	${MAKE} test
+	${MAKE} git-not-dirty
+	${MAKE} bump
+	${MAKE} commit-tag
+	${MAKE} dist
+	${MAKE} upload
+	${MAKE} test-install
 
 ##@ git helpers
 
@@ -110,9 +153,11 @@ git-pull: ## git pull
 
 git-not-dirty:
 	@echo "*** Checking that everything is committed"
-	@if [ -n "$(git status -s)" ]; then\
-		echo "uncommitted git files";\
-		false;\
+	@if [ -n "$(shell git status -s)" ]; then\
+		echo "git status is not clean. You have uncommitted git files";\
+		exit 1;\
+	else\
+		echo "git status is clean";\
     fi
 
 commit-tag: ## commit and tag the release
@@ -131,11 +176,19 @@ commit-tag: ## commit and tag the release
 test-install: ## test conda/pip package by installing that version them
 	@echo "\n\n*** Install/uninstall $(version) pip version"
 	@pip uninstall -y fastprogress
+
+	@echo "\n\n*** waiting for $(version) pip version to become visible"
+	bash -c "$$WAIT_TILL_PIP_VER_IS_AVAILABLE_BASH" $(version)
+
 	pip install fastprogress==$(version)
 	pip uninstall -y fastprogress
 
 	@echo "\n\n*** Install/uninstall $(version) conda version"
 	@# skip, throws error when uninstalled @conda uninstall -y fastprogress
+
+	@echo "\n\n*** waiting for $(version) conda version to become visible"
+	@perl -e '$$v=shift; $$p="fastprogress"; $$|++; sub ok {`conda search -c fastai $$p==$$v 2>1 >/dev/null`; return $$? ? 0 : 1}; print "waiting for $$p-$$v to become available on conda\n"; $$c=0; while (not ok()) { print "\rwaiting: $$c secs"; $$c+=5;sleep 5; }; print "\n$$p-$$v is now available on conda\n"' $(version)
+
 	conda install -y -c fastai fastprogress==$(version)
 	@# leave conda package installed: conda uninstall -y fastprogress
 
@@ -167,11 +220,7 @@ bump-major-dev: ## bump major-level and add .dev0
 	@perl -pi -e 's|((\d+)\.(\d+).(\d+)(\.\w+\d+)?)|$$o=$$1; $$n=join(".", $$2+1, $$3, $$4, "dev0"); print STDERR "*** Changing version: $$o => $$n\n"; $$n |e' $(version_file)
 
 
-# # XXX: untested
-# test-all: ## run tests on every python version with tox
-# 	tox
-#
-# # XXX: untested
+###@ Coverage
 # coverage: ## check code coverage quickly with the default python
 # 	coverage run --source fastprogress -m pytest
 # 	coverage report -m
