@@ -136,6 +136,7 @@ class NBProgressBar(ProgressBar):
 
     def on_interrupt(self):
         #self.progress.bar_style = 'danger'
+        if self.parent is not None: self.parent.on_interrupt()
         self.is_active=False
 
     def on_iter_end(self):
@@ -150,9 +151,9 @@ class NBProgressBar(ProgressBar):
 
 class NBMasterBar(MasterBar):
     names = ['train', 'valid']
-    def __init__(self, gen, total=None, hide_graph=False, order=None):
+    def __init__(self, gen, total=None, hide_graph=False, order=None, clean_on_interrupt=False):
         super().__init__(gen, NBProgressBar, total)
-        self.report = []
+        self.report, self.clean_on_interrupt = [], clean_on_interrupt
         self.text,self.raw_text = "",""
         self.html_code = '\n'.join([self.first_bar.progress, self.text])
         if order is None: order = ['pb1', 'text', 'pb2']
@@ -163,6 +164,9 @@ class NBMasterBar(MasterBar):
         self.start_t = self.last_t = time()
         self.out = display(HTML(self.html_code), display_id=True)
 
+    def on_interrupt(self):
+        if self.clean_on_interrupt: clear_output()
+     
     def on_iter_end(self):
         #if hasattr(self, 'fig'): self.fig.clear()
         total_time = format_time(time() - self.start_t)
@@ -215,7 +219,7 @@ class NBMasterBar(MasterBar):
 
 class ConsoleProgressBar(ProgressBar):
     length:int=50
-    fill:str='█'.encode("utf-8").decode("latin1")
+    fill:str='█'
 
     def __init__(self, gen, total=None, display=True, leave=True, parent=None, auto_update=True):
         self.max_len,self.prefix = 0,''
@@ -235,7 +239,7 @@ class ConsoleProgressBar(ProgressBar):
 
 
 class ConsoleMasterBar(MasterBar):
-    def __init__(self, gen, total=None, hide_graph=False, order=None):
+    def __init__(self, gen, total=None, hide_graph=False, order=None, clean_on_interrupt=False):
         super().__init__(gen, ConsoleProgressBar, total)
 
     def add_child(self, child):
