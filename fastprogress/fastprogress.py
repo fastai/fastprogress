@@ -4,6 +4,11 @@ from warnings import warn
 
 def isnotebook():
     try:
+        from google import colab
+        return True
+    except:
+        pass
+    try:
         shell = get_ipython().__class__.__name__
         if shell == 'ZMQInteractiveShell':
             return True   # Jupyter notebook, Spyder or qtconsole
