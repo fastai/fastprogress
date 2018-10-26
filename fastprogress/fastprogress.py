@@ -111,9 +111,18 @@ def html_progress_bar(value, total, label, interrupted=False):
     return f"""
     <div>
         <style>
-            .progress-bar-interrupted {{
+        	/* Turns off some styling */
+        	progress {{
+
+            	/* gets rid of default border in Firefox and Opera. */
+            	border: none;
+
+            	/* Needs to be in here for Safari polyfill so background images work as expected. */
+            	background-size: auto;
+            }}
+
+            .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {{
                 background: #F44336;
-                color: #F44336;
             }}
         </style>
       <progress value='{value}' class='{bar_style}' max='{total}', style='width:300px; height:10px; vertical-align: middle;'></progress>
@@ -144,7 +153,7 @@ class NBProgressBar(ProgressBar):
     def on_interrupt(self):
         if self.parent is not None: self.parent.on_interrupt()
         self.is_active=False
-        self.on_update(self.total, 'Interrupted', interrupted=True)
+        self.on_update(0, 'Interrupted', interrupted=True)
 
     def on_iter_end(self):
         if not self.leave and self.display: clear_output()
@@ -173,7 +182,7 @@ class NBMasterBar(MasterBar):
 
     def on_interrupt(self):
         if self.clean_on_interrupt: clear_output()
-     
+
     def on_iter_end(self):
         #if hasattr(self, 'fig'): self.fig.clear()
         total_time = format_time(time() - self.start_t)
@@ -191,7 +200,7 @@ class NBMasterBar(MasterBar):
         self.child = child
         self.inner_dict['pb2'] = self.child.progress
         self.show()
-        
+
     def show(self):
         self.inner_dict['pb1'], self.inner_dict['text'] = self.first_bar.progress, self.text
         if 'pb2' in self.inner_dict: self.inner_dict['pb2'] = self.child.progress
