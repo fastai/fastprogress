@@ -106,10 +106,17 @@ class MasterBar():
     def write(self, line):      pass
     def update_graph(self, graphs, x_bounds, y_bounds): pass
 
-def html_progress_bar(value, total, label):
+def html_progress_bar(value, total, label, interrupted=False):
+    bar_style = 'progress-bar-interrupted' if interrupted else ''
     return f"""
     <div>
-      <progress value='{value}' max='{total}', style='width:300px; height:20px; vertical-align: middle;'></progress>
+        <style>
+            .progress-bar-interrupted {{
+                background: #F44336;
+                color: #F44336;
+            }}
+        </style>
+      <progress value='{value}' class='{bar_style}' max='{total}', style='width:300px; height:10px; vertical-align: middle;'></progress>
       {label}
     </div>
     """
@@ -130,21 +137,21 @@ class NBProgressBar(ProgressBar):
         super().__init__(gen, total, display, leave, parent, auto_update)
 
     def on_iter_begin(self):
-        if self.display: 
+        if self.display:
             self.out = display(HTML(self.progress), display_id=True)
         self.is_active=True
 
     def on_interrupt(self):
-        #self.progress.bar_style = 'danger'
         if self.parent is not None: self.parent.on_interrupt()
         self.is_active=False
+        self.on_update(self.total, 'Interrupted', interrupted=True)
 
     def on_iter_end(self):
         if not self.leave and self.display: clear_output()
         self.is_active=False
 
-    def on_update(self, val, text):
-        self.progress = html_progress_bar(val, self.total, text)
+    def on_update(self, val, text, interrupted=False):
+        self.progress = html_progress_bar(val, self.total, text, interrupted)
         if self.display:
             self.out.update(HTML(self.progress))
         elif self.parent is not None: self.parent.show()
