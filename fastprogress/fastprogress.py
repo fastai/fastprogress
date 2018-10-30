@@ -259,7 +259,7 @@ class ConsoleProgressBar(ProgressBar):
             bar = self.fill * filled_len + '-' * (self.length - filled_len)
             to_write = f'\r{self.prefix} |{bar}| {text}'
             if len(to_write) > self.max_len: self.max_len=len(to_write)
-            if printing(): print(to_write, end = '\r')
+            if printing(): WRITER_FN(to_write, end = '\r')
 
 
 class ConsoleMasterBar(MasterBar):
@@ -271,10 +271,11 @@ class ConsoleMasterBar(MasterBar):
         self.child.prefix = f'Epoch {self.first_bar.last_v+1}/{self.first_bar.total} :'
         self.child.display = True
 
-    def write(self, line, table=False): print(line)
+    def write(self, line, table=False): WRITER_FN(line)
 
 
 NO_BAR = False
+WRITER_FN = print
 
 def printing():
     return False if NO_BAR else (stdout.isatty() or IN_NOTEBOOK)
