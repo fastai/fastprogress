@@ -1,13 +1,59 @@
 # Build and Release Instructions
 
-## Magic
+
+
+## One Time Preparation
+
+You can skip this step if you have done it once already on the system you're making the release from.
+
+1. You need to register (free) with:
+
+    - [PyPI](https://pypi.org/account/register/)
+    - [TestPyPI](https://test.pypi.org/account/register/)
+    - [anaconda.org](https://anaconda.org/)
+
+    After registration, to upload to fastai project, you will need to ask Jeremy to add your username to PyPI and anaconda.
+
+2. Create file `~/.pypirc` with the following content:
+
+    ```
+    [distutils]
+    index-servers =
+      pypi
+      testpypi
+
+    [testpypi]
+    repository: https://test.pypi.org/legacy/
+    username: your testpypi username
+    password: your testpypi password
+
+    [pypi]
+    username: your pypi username
+    password: your pypi password
+    ```
+
+3. You can also setup your client to have transparent access to anaconda tools, see https://anaconda.org/YOURUSERNAME/settings/access (adjust the url to insert your username).
+
+    You don't really need it, as the anaconda client cashes your credentials so you need to login only infrequently.
+
+
+
+
+
+## Quick Release Process
+
+No matter which release process you follow, always remember to start with:
+
+```
+git pull
+```
 
 This does it all:
 ```
 make release
 ```
 
-If this was a bug fix, update `fastai` dependency files: `conda/meta.yaml` and `setup.py` with this release's `fastprogress` version number.
+If this was a bug fix, remember to update `fastai` dependency files: `conda/meta.yaml` and `setup.py` with this release's `fastprogress` version number.
 
 ## TL;DR
 
