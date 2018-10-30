@@ -142,7 +142,7 @@ class NBProgressBar(ProgressBar):
     def on_interrupt(self):
         #self.progress.bar_style = 'danger'
         if self.parent is not None: self.parent.on_interrupt()
-        self.is_active=False
+        self.on_iter_end()
 
     def on_iter_end(self):
         if not self.leave and self.display: clear_output()
@@ -229,6 +229,9 @@ class ConsoleProgressBar(ProgressBar):
     def __init__(self, gen, total=None, display=True, leave=True, parent=None, auto_update=True):
         self.max_len,self.prefix = 0,''
         super().__init__(gen, total, display, leave, parent, auto_update)
+
+    def on_interrupt(self):
+        self.on_iter_end()
 
     def on_iter_end(self):
         if not self.leave and printing():
