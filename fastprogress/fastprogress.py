@@ -4,6 +4,11 @@ from warnings import warn
 
 def isnotebook():
     try:
+        from google import colab
+        return True
+    except:
+        pass
+    try:
         shell = get_ipython().__class__.__name__
         if shell == 'ZMQInteractiveShell':
             return True   # Jupyter notebook, Spyder or qtconsole
@@ -152,8 +157,8 @@ class NBProgressBar(ProgressBar):
 
     def on_interrupt(self):
         if self.parent is not None: self.parent.on_interrupt()
-        self.is_active=False
         self.on_update(0, 'Interrupted', interrupted=True)
+        self.on_iter_end()
 
     def on_iter_end(self):
         if not self.leave and self.display: clear_output()
@@ -240,6 +245,9 @@ class ConsoleProgressBar(ProgressBar):
     def __init__(self, gen, total=None, display=True, leave=True, parent=None, auto_update=True):
         self.max_len,self.prefix = 0,''
         super().__init__(gen, total, display, leave, parent, auto_update)
+
+    def on_interrupt(self):
+        self.on_iter_end()
 
     def on_iter_end(self):
         if not self.leave and printing():
