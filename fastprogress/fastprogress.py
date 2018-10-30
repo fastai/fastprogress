@@ -92,7 +92,7 @@ class ProgressBar():
         elapsed_t = format_time(elapsed_t)
         end = '' if len(self.comment) == 0 else f' {self.comment}'
         if self.total == 0:
-            warn("You generator is empty.")
+            warn("Your generator is empty.")
             self.on_update(0, '100% [0/0]')
         else: self.on_update(val, f'{100 * val/self.total:.2f}% [{val}/{self.total} {elapsed_t}<{remaining_t}{end}]')
 
@@ -111,10 +111,26 @@ class MasterBar():
     def write(self, line):      pass
     def update_graph(self, graphs, x_bounds, y_bounds): pass
 
-def html_progress_bar(value, total, label):
+def html_progress_bar(value, total, label, interrupted=False):
+    bar_style = 'progress-bar-interrupted' if interrupted else ''
     return f"""
     <div>
-      <progress value='{value}' max='{total}', style='width:300px; height:20px; vertical-align: middle;'></progress>
+        <style>
+        	/* Turns off some styling */
+        	progress {{
+
+            	/* gets rid of default border in Firefox and Opera. */
+            	border: none;
+
+            	/* Needs to be in here for Safari polyfill so background images work as expected. */
+            	background-size: auto;
+            }}
+
+            .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {{
+                background: #F44336;
+            }}
+        </style>
+      <progress value='{value}' class='{bar_style}' max='{total}', style='width:300px; height:10px; vertical-align: middle;'></progress>
       {label}
     </div>
     """
@@ -135,21 +151,21 @@ class NBProgressBar(ProgressBar):
         super().__init__(gen, total, display, leave, parent, auto_update)
 
     def on_iter_begin(self):
-        if self.display: 
+        if self.display:
             self.out = display(HTML(self.progress), display_id=True)
         self.is_active=True
 
     def on_interrupt(self):
-        #self.progress.bar_style = 'danger'
         if self.parent is not None: self.parent.on_interrupt()
+        self.on_update(0, 'Interrupted', interrupted=True)
         self.on_iter_end()
 
     def on_iter_end(self):
         if not self.leave and self.display: clear_output()
         self.is_active=False
 
-    def on_update(self, val, text):
-        self.progress = html_progress_bar(val, self.total, text)
+    def on_update(self, val, text, interrupted=False):
+        self.progress = html_progress_bar(val, self.total, text, interrupted)
         if self.display:
             self.out.update(HTML(self.progress))
         elif self.parent is not None: self.parent.show()
@@ -171,7 +187,7 @@ class NBMasterBar(MasterBar):
 
     def on_interrupt(self):
         if self.clean_on_interrupt: clear_output()
-     
+
     def on_iter_end(self):
         #if hasattr(self, 'fig'): self.fig.clear()
         total_time = format_time(time() - self.start_t)
@@ -189,7 +205,7 @@ class NBMasterBar(MasterBar):
         self.child = child
         self.inner_dict['pb2'] = self.child.progress
         self.show()
-        
+
     def show(self):
         self.inner_dict['pb1'], self.inner_dict['text'] = self.first_bar.progress, self.text
         if 'pb2' in self.inner_dict: self.inner_dict['pb2'] = self.child.progress
