@@ -134,15 +134,26 @@ install: clean ## install the package to the active python's site-packages
 test: ## run tests with the default python
 	python setup.py --quiet test
 
+tools-update: ## install/update build tools
+	@echo "\n\n*** Updating build tools"
+	conda install -y conda-verify conda-build anaconda-client
+	pip install -U twine
+
+update-fastai: ## reminder to update fastai deps
+	@echo "\n\n*** Reminder"
+	@echo "If this was a bug fix, remember to update `fastai` dependency files: `conda/meta.yaml` and `setup.py` with this release's `fastprogress` version number."
+
 release: ## do it all (other than testing)
+	${MAKE} tools-update
 	${MAKE} git-pull
-	${MAKE} test
+    ${MAKE} test
 	${MAKE} git-not-dirty
 	${MAKE} bump
 	${MAKE} commit-tag
 	${MAKE} dist
 	${MAKE} upload
 	${MAKE} test-install
+	${MAKE} update-fastai
 
 ##@ git helpers
 

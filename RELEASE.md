@@ -57,9 +57,15 @@ If this was a bug fix, remember to update `fastai` dependency files: `conda/meta
 
 ## TL;DR
 
-A step-by-step release process, if something goes wrong during the auto-pilot.
+Here is a step-by-step release process. You can follow these steps from the beginning, or if something goes wrong during the auto-pilot simply continue with where it left off.
 
-1. Test code:
+1. Install/update build tools
+
+   ```
+   make tools-update
+   ```
+
+2. Test code:
    ```
    make git-pull
    make test
@@ -68,7 +74,7 @@ A step-by-step release process, if something goes wrong during the auto-pilot.
 
    The next stage requires a clean tree to start with, so commit any uncommitted code. If you `git stash` make sure to rerun `make test`.
 
-2. Bump and Tag and Commit:
+3. Bump and Tag and Commit:
 
    ```
    make git-not-dirty && make bump && make commit-tag
@@ -76,20 +82,20 @@ A step-by-step release process, if something goes wrong during the auto-pilot.
 
    This will do patch-level bump, for major/minor bump targets see below.
 
-3. Release:
+4. Release:
 
    ```
    make dist
    make upload
    ```
 
-4. Test uploads by installing them:
+5. Test uploads by installing them:
 
    ```
    make test-install
    ```
 
-5. Update fastai repo
+6. Update fastai repo
 
    If this was a bug fix, update `fastai` dependency files: `conda/meta.yaml` and `setup.py` with this release's `fastprogress` version number.
 
