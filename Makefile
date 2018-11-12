@@ -146,7 +146,7 @@ update-fastai: ## reminder to update fastai deps
 release: ## do it all (other than testing)
 	${MAKE} tools-update
 	${MAKE} git-pull
-    ${MAKE} test
+	${MAKE} test
 	${MAKE} git-not-dirty
 	${MAKE} bump
 	${MAKE} commit-tag
