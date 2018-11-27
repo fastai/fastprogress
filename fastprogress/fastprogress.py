@@ -191,15 +191,16 @@ class NBMasterBar(MasterBar):
     def on_iter_end(self):
         #if hasattr(self, 'fig'): self.fig.clear()
         total_time = format_time(time() - self.start_t)
-        end_report = f'Total time: {total_time}\n'
-        max_len = 0
-        for item in self.report:
-            if len(item[0]) > max_len: max_len = len(item[0])
-        for item in self.report:
-            ending = f'  ({item[1]})\n' if item[1] != '' else '\n'
-            end_report += item[0] + (' ' * (max_len-len(item[0]))) + ending
-        clear_output()
-        print(end_report)
+        self.out.update(HTML(f'Total time: {total_time} <p>' + self.text))
+        #end_report = f'Total time: {total_time}\n'
+        #max_len = 0
+        #for item in self.report:
+        #    if len(item[0]) > max_len: max_len = len(item[0])
+        #for item in self.report:
+        #    ending = f'  ({item[1]})\n' if item[1] != '' else '\n'
+        #    end_report += item[0] + (' ' * (max_len-len(item[0]))) + ending
+        #clear_output()
+        #print(end_report)
 
     def add_child(self, child):
         self.child = child
