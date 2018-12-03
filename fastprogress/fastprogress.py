@@ -189,18 +189,10 @@ class NBMasterBar(MasterBar):
         if self.clean_on_interrupt: clear_output()
 
     def on_iter_end(self):
-        #if hasattr(self, 'fig'): self.fig.clear()
+        plt.close()
+        if hasattr(self, 'fig'): self.out2.update(self.fig)
         total_time = format_time(time() - self.start_t)
         self.out.update(HTML(f'Total time: {total_time} <p>' + self.text))
-        #end_report = f'Total time: {total_time}\n'
-        #max_len = 0
-        #for item in self.report:
-        #    if len(item[0]) > max_len: max_len = len(item[0])
-        #for item in self.report:
-        #    ending = f'  ({item[1]})\n' if item[1] != '' else '\n'
-        #    end_report += item[0] + (' ' * (max_len-len(item[0]))) + ending
-        #clear_output()
-        #print(end_report)
 
     def add_child(self, child):
         self.child = child
@@ -225,6 +217,18 @@ class NBMasterBar(MasterBar):
         else:
             self.raw_text += line + "\n"
             self.text = text2html_table(self.raw_text)
+            
+    def show_imgs(self, imgs, titles=None, cols=4, imgsize=4, figsize=None):
+        if self.hide_graph: return
+        rows = len(imgs)//cols if len(imgs)%cols == 0 else len(imgs)//cols + 1
+        plt.close()
+        if figsize is None: figsize = (imgsize*cols, imgsize*rows)
+        self.fig, axs = plt.subplots(rows, cols, figsize=figsize)
+        if titles is None: titles = [None] * len(imgs)
+        for img, ax, title in zip(imgs, axs.flatten(), titles): img.show(ax=ax, title=title)
+        for ax in axs.flatten()[len(imgs):]: ax.axis('off')
+        if not hasattr(self, 'out2'): self.out2 = display(self.fig, display_id=True)
+        else: self.out2.update(self.fig)
 
     def update_graph(self, graphs, x_bounds=None, y_bounds=None):
         if self.hide_graph: return
@@ -257,11 +261,10 @@ class ConsoleProgressBar(ProgressBar):
     def on_update(self, val, text):
         if self.display:
             filled_len = int(self.length * val // self.total)
-            bar = self.fill * filled_len + '-' * (self.length - filled_len)
+            bar = self.fill.encode('utf-8') * filled_len + '-' * (self.length - filled_len)
             to_write = f'\r{self.prefix} |{bar}| {text}'
             if len(to_write) > self.max_len: self.max_len=len(to_write)
             if printing(): WRITER_FN(to_write, end = '\r')
-
 
 class ConsoleMasterBar(MasterBar):
     def __init__(self, gen, total=None, hide_graph=False, order=None, clean_on_interrupt=False):
