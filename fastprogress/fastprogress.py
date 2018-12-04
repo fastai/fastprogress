@@ -116,16 +116,13 @@ def html_progress_bar(value, total, label, interrupted=False):
     return f"""
     <div>
         <style>
-        	/* Turns off some styling */
-        	progress {{
-
-            	/* gets rid of default border in Firefox and Opera. */
-            	border: none;
-
-            	/* Needs to be in here for Safari polyfill so background images work as expected. */
-            	background-size: auto;
+            /* Turns off some styling */
+            progress {{
+                /* gets rid of default border in Firefox and Opera. */
+                border: none;
+                /* Needs to be in here for Safari polyfill so background images work as expected. */
+                background-size: auto;
             }}
-
             .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {{
                 background: #F44336;
             }}
@@ -135,13 +132,12 @@ def html_progress_bar(value, total, label, interrupted=False):
     </div>
     """
 
-def text2html_table(text):
-    first_line = text.split('\n')[0].split(' ')
-    num_items = len([o for o in first_line if len(o) >= 1])
-    html_code = f"<table style='width:{max(300, 75*num_items)}px; margin-bottom:10px'>\n"
-    for line in text.split('\n'):
+def text2html_table(lines):
+    import pdb; pdb.set_trace()
+    html_code = f"<table style='width:{max(300, 75*len(lines[0]))}px; margin-bottom:10px'>\n"
+    for line in lines:
         html_code += "  <tr>\n"
-        html_code += "\n".join([f"    <th>{o}</th>" for o in line.split(' ') if len(o) >= 1])
+        html_code += "\n".join([f"    <th>{o}</th>" for o in line if len(o) >= 1])
         html_code += "\n  </tr>\n"
     return html_code + "</table>\n"
 
@@ -175,14 +171,14 @@ class NBMasterBar(MasterBar):
     def __init__(self, gen, total=None, hide_graph=False, order=None, clean_on_interrupt=False):
         super().__init__(gen, NBProgressBar, total)
         self.report, self.clean_on_interrupt = [], clean_on_interrupt
-        self.text,self.raw_text = "",""
+        self.text,self.lines = "",[]
         self.html_code = '\n'.join([self.first_bar.progress, self.text])
         if order is None: order = ['pb1', 'text', 'pb2']
         self.inner_dict = {'pb1':self.first_bar.progress, 'text':self.text}
         self.hide_graph,self.order = hide_graph,order
 
     def on_iter_begin(self):
-        self.start_t = self.last_t = time()
+        self.start_t = time()
         self.out = display(HTML(self.html_code), display_id=True)
 
     def on_interrupt(self):
@@ -207,28 +203,26 @@ class NBMasterBar(MasterBar):
         self.out.update(HTML(self.html_code))
 
     def write(self, line, table=False):
-        if hasattr(self, 'last_t'):
-            cur_time = time()
-            elapsed_time = format_time(cur_time - self.last_t)
-            self.last_t = cur_time
-        else: elapsed_time = ''
-        self.report.append([line, elapsed_time])
         if not table: self.text += line + "<p>"
         else:
-            self.raw_text += line + "\n"
-            self.text = text2html_table(self.raw_text)
-            
-    def show_imgs(self, imgs, titles=None, cols=4, imgsize=4, figsize=None):
+            self.lines.append(line)
+            self.text = text2html_table(self.lines)
+
+    def show_imgs(self, imgs, titles=None, cols=4):
         if self.hide_graph: return
         rows = len(imgs)//cols if len(imgs)%cols == 0 else len(imgs)//cols + 1
         plt.close()
-        if figsize is None: figsize = (imgsize*cols, imgsize*rows)
-        self.fig, axs = plt.subplots(rows, cols, figsize=figsize)
-        if titles is None: titles = [None] * len(imgs)
-        for img, ax, title in zip(imgs, axs.flatten(), titles): img.show(ax=ax, title=title)
+        self.fig, axs = plt.subplots(rows, cols)
+        for img, ax in zip(imgs, axs.flatten()): img.show(ax=ax)
         for ax in axs.flatten()[len(imgs):]: ax.axis('off')
         if not hasattr(self, 'out2'): self.out2 = display(self.fig, display_id=True)
         else: self.out2.update(self.fig)
+        #if not hasattr(self, 'fig'):
+        #    self.fig, self.ax = plt.subplots(1, figsize=(6,4))
+        #    self.out2 = display(self.ax.figure, display_id=True)
+        #self.ax.clear()
+        #img.show(ax=self.ax)
+        #self.out2.update(self.ax.figure)
 
     def update_graph(self, graphs, x_bounds=None, y_bounds=None):
         if self.hide_graph: return
@@ -275,8 +269,16 @@ class ConsoleMasterBar(MasterBar):
         self.child.prefix = f'Epoch {self.first_bar.last_v+1}/{self.first_bar.total} :'
         self.child.display = True
 
-    def write(self, line, table=False): WRITER_FN(line)
-
+    def write(self, line, table=False):
+        if table:
+            text = ''
+            if not hasattr(self, 'names'):
+                self.names = line
+                for name in line: text += name + ' ' * (8-len(name)) if len(name) < 8 else name
+            else:
+                for (t,name) in zip(line,self.names): text += t + ' ' * (len(name)-len(line))
+            WRITER_FN(text)
+        else: WRITER_FN(line)
 
 NO_BAR = False
 WRITER_FN = print
