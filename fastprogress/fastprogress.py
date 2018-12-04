@@ -133,7 +133,6 @@ def html_progress_bar(value, total, label, interrupted=False):
     """
 
 def text2html_table(lines):
-    import pdb; pdb.set_trace()
     html_code = f"<table style='width:{max(300, 75*len(lines[0]))}px; margin-bottom:10px'>\n"
     for line in lines:
         html_code += "  <tr>\n"
@@ -208,21 +207,17 @@ class NBMasterBar(MasterBar):
             self.lines.append(line)
             self.text = text2html_table(self.lines)
 
-    def show_imgs(self, imgs, titles=None, cols=4):
+    def show_imgs(self, imgs, titles=None, cols=4, imgsize=4, figsize=None):
         if self.hide_graph: return
         rows = len(imgs)//cols if len(imgs)%cols == 0 else len(imgs)//cols + 1
         plt.close()
-        self.fig, axs = plt.subplots(rows, cols)
-        for img, ax in zip(imgs, axs.flatten()): img.show(ax=ax)
+        if figsize is None: figsize = (imgsize*cols, imgsize*rows)
+        self.fig, axs = plt.subplots(rows, cols, figsize=figsize)
+        if titles is None: titles = [None] * len(imgs)
+        for img, ax, title in zip(imgs, axs.flatten(), titles): img.show(ax=ax, title=title)
         for ax in axs.flatten()[len(imgs):]: ax.axis('off')
         if not hasattr(self, 'out2'): self.out2 = display(self.fig, display_id=True)
         else: self.out2.update(self.fig)
-        #if not hasattr(self, 'fig'):
-        #    self.fig, self.ax = plt.subplots(1, figsize=(6,4))
-        #    self.out2 = display(self.ax.figure, display_id=True)
-        #self.ax.clear()
-        #img.show(ax=self.ax)
-        #self.out2.update(self.ax.figure)
 
     def update_graph(self, graphs, x_bounds=None, y_bounds=None):
         if self.hide_graph: return
@@ -255,7 +250,7 @@ class ConsoleProgressBar(ProgressBar):
     def on_update(self, val, text):
         if self.display:
             filled_len = int(self.length * val // self.total)
-            bar = self.fill.encode('utf-8') * filled_len + '-' * (self.length - filled_len)
+            bar = self.fill * filled_len + '-' * (self.length - filled_len)
             to_write = f'\r{self.prefix} |{bar}| {text}'
             if len(to_write) > self.max_len: self.max_len=len(to_write)
             if printing(): WRITER_FN(to_write, end = '\r')
@@ -273,12 +268,15 @@ class ConsoleMasterBar(MasterBar):
         if table:
             text = ''
             if not hasattr(self, 'names'):
-                self.names = line
-                for name in line: text += name + ' ' * (8-len(name)) if len(name) < 8 else name
+                self.names = [name + ' ' * (8-len(name)) if len(name) < 8 else name for name in line]
+                text = ''.join(self.names)
             else:
-                for (t,name) in zip(line,self.names): text += t + ' ' * (len(name)-len(line))
+                for (t,name) in zip(line,self.names): text += t + ' ' * (len(name)-len(t))
             WRITER_FN(text)
         else: WRITER_FN(line)
+
+    def show_imgs(*args): pass
+    def update_graph(*args): pass
 
 NO_BAR = False
 WRITER_FN = print
