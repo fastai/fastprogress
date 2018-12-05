@@ -269,9 +269,9 @@ class ConsoleMasterBar(MasterBar):
             text = ''
             if not hasattr(self, 'names'):
                 self.names = [name + ' ' * (8-len(name)) if len(name) < 8 else name for name in line]
-                text = ''.join(self.names)
+                text = '  '.join(self.names)
             else:
-                for (t,name) in zip(line,self.names): text += t + ' ' * (len(name)-len(t))
+                for (t,name) in zip(line,self.names): text += t + ' ' * (2 + len(name)-len(t))
             WRITER_FN(text)
         else: WRITER_FN(line)
 
