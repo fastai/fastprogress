@@ -97,7 +97,7 @@ Here is a step-by-step release process. You can follow these steps from the begi
 
 6. Update fastai repo
 
-   If this was a bug fix or a change of API, update the three `fastai` dependency files: `conda/meta.yaml`, `imports.core.py` and `setup.py` with this release's `fastprogress` version number.
+   If this was a bug fix or a change of API, update the three `fastai` dependency files: `conda/meta.yaml`, `imports/core.py` and `setup.py` with this release's `fastprogress` version number.
 
 
 
