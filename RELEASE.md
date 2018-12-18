@@ -97,7 +97,11 @@ Here is a step-by-step release process. You can follow these steps from the begi
 
 6. Update fastai repo
 
-   If this was a bug fix, update `fastai` dependency files: `conda/meta.yaml` and `setup.py` with this release's `fastprogress` version number.
+   If this was a bug fix or a change of API, update the following four `fastai` dependency files with this release's `fastprogress` version number:
+   1. `imports/core.py`
+   2. `conda/meta.yaml`
+   3. `setup.py`
+   4. `docs/install.md` (#custom-dependencies)
 
 
 
@@ -112,17 +116,23 @@ You can either edit `fastprogress/version.py` and change the version number by h
 
 Or run one of these `make` targets:
 
-   Target             | Function
-   -------------------| --------------------------------------------
-   bump-major         | bump major-level unless has .devX, then don't bump, but remove .devX
-   bump-minor         | bump minor-level unless has .devX, then don't bump, but remove .devX
-   bump-patch         | bump patch-level unless has .devX, then don't bump, but remove .devX
-   bump               | alias to bump-patch (as it's used often)
-   bump-major-dev     | bump major-level and add .dev0
-   bump-minor-dev     | bump minor-level and add .dev0
-   bump-patch-dev     | bump patch-level and add .dev0
-   bump-dev           | alias to bump-patch-dev (as it's used often)
+   Target            | Function
+   ------------------| --------------------------------------------
+   bump-major        | bump major level; remove .devX if any
+   bump-minor        | bump minor level; remove .devX if any
+   bump-patch        | bump patch level unless has .devX, then don't bump, but remove .devX
+   bump              | alias to bump-patch (as it's used often)
+   bump-post-release | add .post1 or bump post-release level .post2, .post3, ...
+   bump-major-dev    | bump major level and add .dev0
+   bump-minor-dev    | bump minor level and add .dev0
+   bump-patch-dev    | bump patch level and add .dev0
+   bump-dev          | alias to bump-patch-dev (as it's used often)
 
+e.g.:
+
+```
+make bump
+```
 
 We use the semver version convention w/ python adjustment to `.devX`, instead of `-devX`:
 
