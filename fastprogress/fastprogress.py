@@ -1,6 +1,7 @@
 from time import time
 from sys import stdout
 from warnings import warn
+import shutil
 
 def isnotebook():
     try:
@@ -233,10 +234,11 @@ class NBMasterBar(MasterBar):
         self.out2.update(self.ax.figure)
 
 class ConsoleProgressBar(ProgressBar):
-    length:int=50
     fill:str='█'
 
-    def __init__(self, gen, total=None, display=True, leave=True, parent=None, auto_update=True):
+    def __init__(self, gen, total=None, display=True, leave=True, parent=None, auto_update=True, txt_len=50):
+        cols,_ = shutil.get_terminal_size((100, 40))
+        self.length = cols-txt_len
         self.max_len,self.prefix = 0,''
         super().__init__(gen, total, display, leave, parent, auto_update)
 

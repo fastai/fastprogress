@@ -10,7 +10,7 @@ setuptools.setup(
     name="fastprogress",
     version=__version__,
     author="Sylvain Gugger",
-	license = "Apache License 2.0",
+    license = "Apache License 2.0",
     description="A nested progress with plotting options for fastai",
     long_description=long_description,
     long_description_content_type="text/markdown",
