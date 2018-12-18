@@ -236,7 +236,7 @@ class NBMasterBar(MasterBar):
 class ConsoleProgressBar(ProgressBar):
     fill:str='█'
 
-    def __init__(self, gen, total=None, display=True, leave=True, parent=None, auto_update=True, txt_len=50):
+    def __init__(self, gen, total=None, display=True, leave=True, parent=None, auto_update=True, txt_len=60):
         cols,_ = shutil.get_terminal_size((100, 40))
         self.length = cols-txt_len
         self.max_len,self.prefix = 0,''
