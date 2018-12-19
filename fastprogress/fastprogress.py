@@ -106,7 +106,7 @@ class MasterBar():
         for o in self.first_bar: yield o
         self.on_iter_end()
 
-    def on_iter_begin(self): pass
+    def on_iter_begin(self): self.start_t = time()
     def on_iter_end(self): pass
     def add_child(self, child): pass
     def write(self, line):      pass
@@ -178,7 +178,6 @@ class NBMasterBar(MasterBar):
         self.hide_graph,self.order = hide_graph,order
 
     def on_iter_begin(self):
-        self.start_t = time()
         self.out = display(HTML(self.html_code), display_id=True)
 
     def on_interrupt(self):
@@ -276,6 +275,10 @@ class ConsoleMasterBar(MasterBar):
                 for (t,name) in zip(line,self.names): text += t + ' ' * (2 + len(name)-len(t))
             WRITER_FN(text)
         else: WRITER_FN(line)
+            
+    def on_iter_end(self):
+        total_time = format_time(time() - self.start_t)
+        WRITER_FN(f'Total time: {total_time}')
 
     def show_imgs(*args): pass
     def update_graph(*args): pass
