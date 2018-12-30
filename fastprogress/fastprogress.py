@@ -178,6 +178,7 @@ class NBMasterBar(MasterBar):
         self.hide_graph,self.order = hide_graph,order
 
     def on_iter_begin(self):
+        super().on_iter_begin()
         self.out = display(HTML(self.html_code), display_id=True)
 
     def on_interrupt(self):
