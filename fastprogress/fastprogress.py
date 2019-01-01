@@ -156,7 +156,7 @@ class NBProgressBar(ProgressBar):
         self.on_iter_end()
 
     def on_iter_end(self):
-        if not self.leave and self.display: self.out.update(HTML(''))
+        if not self.leave and self.display: clear_output()#self.out.update(HTML(''))
         self.is_active=False
 
     def on_update(self, val, text, interrupted=False):
@@ -183,8 +183,9 @@ class NBMasterBar(MasterBar):
         if self.clean_on_interrupt: self.out.update(HTML(''))
 
     def on_iter_end(self):
-        plt.close()
-        if hasattr(self, 'fig'): self.out2.update(self.fig)
+        if hasattr(self, 'fig'): 
+            plt.close()
+            self.out2.update(self.fig)
         total_time = format_time(time() - self.start_t)
         self.out.update(HTML(f'Total time: {total_time} <p>' + self.text))
 
