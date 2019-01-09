@@ -16,7 +16,7 @@ or:
 ```
 conda install -c fastai fastprogress 
 ```
-Note that this requires python 3.6 or later.
+Note that this requires python 3.7 or later.
 
 ## Usage
 
