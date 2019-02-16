@@ -53,7 +53,7 @@ This does it all:
 make release
 ```
 
-If this was a bug fix, remember to update `fastai` dependency files: `conda/meta.yaml` and `setup.py` with this release's `fastprogress` version number.
+If this was a bug fix, remember to update `fastai` dependency files: `conda/meta.yaml` and `setup.py` and also `imports/core.py` with this release's `fastprogress` version number.
 
 ## TL;DR
 

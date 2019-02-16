@@ -141,7 +141,7 @@ tools-update: ## install/update build tools
 
 update-fastai: ## reminder to update fastai deps
 	@echo "\n\n*** Reminder"
-	@echo "If this was a bug fix or a change of API, update the following four `fastai` dependency files: `conda/meta.yaml`, `imports/core.py`, `setup.py` and `docs/install.md` (#custom-dependencies) with this release's `fastprogress` version number."
+	@echo "If this was a bug fix or a change of API, now update the following 3 'fastai' dependency files:\n  * conda/meta.yaml\n  * imports/core.py\n  * setup.py\nwith this release's 'fastprogress' version number."
 
 release: ## do it all (other than testing)
 	${MAKE} tools-update
