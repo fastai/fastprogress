@@ -273,7 +273,7 @@ class ConsoleMasterBar(MasterBar):
         
     def on_iter_begin(self):
         super().on_iter_begin()
-        if SAVE_PATH is not None and os.path.exists(SAVE_PATH):
+        if SAVE_PATH is not None and os.path.exists(SAVE_PATH) and not SAVE_APPEND:
             with open(SAVE_PATH, 'w') as f: f.write('')
 
     def write(self, line, table=False):
@@ -297,6 +297,7 @@ class ConsoleMasterBar(MasterBar):
 NO_BAR = False
 WRITER_FN = print
 SAVE_PATH = None
+SAVE_APPEND = False
 
 def print_and_maybe_save(line):
     WRITER_FN(line)
