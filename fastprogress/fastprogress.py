@@ -1,7 +1,7 @@
 from time import time
 from sys import stdout
 from warnings import warn
-import shutil
+import shutil,os
 
 def isnotebook():
     try:
@@ -133,13 +133,18 @@ def html_progress_bar(value, total, label, interrupted=False):
     </div>
     """
 
-def text2html_table(lines):
-    html_code = f"<table style='width:{max(300, 75*len(lines[0]))}px; margin-bottom:10px'>\n"
-    for line in lines:
-        html_code += "  <tr>\n"
-        html_code += "\n".join([f"    <th>{o}</th>" for o in line if len(o) >= 1])
-        html_code += "\n  </tr>\n"
-    return html_code + "</table>\n"
+def text2html_table(items):
+    "Put the texts in `items` in an HTML table."
+    html_code = f"""<table border="1" class="dataframe">\n"""
+    html_code += f"""  <thead>\n    <tr style="text-align: left;">\n"""
+    for i in items[0]: html_code += f"      <th>{i}</th>\n"
+    html_code += f"    </tr>\n  </thead>\n  <tbody>\n"
+    for line in items[1:]:
+        html_code += "    <tr>\n"
+        for i in line: html_code += f"      <td>{i}</td>\n"
+        html_code += "    </tr>\n"
+    html_code += "  </tbody>\n</table><p>"
+    return html_code
 
 class NBProgressBar(ProgressBar):
     def __init__(self, gen, total=None, display=True, leave=True, parent=None, auto_update=True):
@@ -187,6 +192,7 @@ class NBMasterBar(MasterBar):
             plt.close()
             self.out2.update(self.fig)
         total_time = format_time(time() - self.start_t)
+        if self.text.endswith('<p>'): self.text = self.text[:-3]
         self.out.update(HTML(f'Total time: {total_time} <p>' + self.text))
 
     def add_child(self, child):
@@ -264,6 +270,11 @@ class ConsoleMasterBar(MasterBar):
         self.child = child
         self.child.prefix = f'Epoch {self.first_bar.last_v+1}/{self.first_bar.total} :'
         self.child.display = True
+        
+    def on_iter_begin(self):
+        super().on_iter_begin()
+        if SAVE_PATH is not None and os.path.exists(SAVE_PATH):
+            with open(SAVE_PATH, 'w') as f: f.write('')
 
     def write(self, line, table=False):
         if table:
@@ -273,18 +284,25 @@ class ConsoleMasterBar(MasterBar):
                 text = '  '.join(self.names)
             else:
                 for (t,name) in zip(line,self.names): text += t + ' ' * (2 + len(name)-len(t))
-            WRITER_FN(text)
-        else: WRITER_FN(line)
+            print_and_maybe_save(text)
+        else: print_and_maybe_save(line)
             
     def on_iter_end(self):
         total_time = format_time(time() - self.start_t)
-        WRITER_FN(f'Total time: {total_time}')
+        print_and_maybe_save(f'Total time: {total_time}')
 
     def show_imgs(*args): pass
     def update_graph(*args): pass
 
 NO_BAR = False
 WRITER_FN = print
+SAVE_PATH = None
+
+def print_and_maybe_save(line):
+    WRITER_FN(line)
+    if SAVE_PATH is not None: 
+        attr = "a" if os.path.exists(SAVE_PATH) else "w"
+        with open(SAVE_PATH, attr) as f: f.write(line + '\n')
 
 def printing():
     return False if NO_BAR else (stdout.isatty() or IN_NOTEBOOK)
