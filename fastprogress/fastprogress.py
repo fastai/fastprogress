@@ -171,9 +171,9 @@ class NBProgressBar(ProgressBar):
 
 class NBMasterBar(MasterBar):
     names = ['train', 'valid']
-    def __init__(self, gen, total=None, hide_graph=False, order=None, clean_on_interrupt=False):
+    def __init__(self, gen, total=None, hide_graph=False, order=None, clean_on_interrupt=False, total_time=False):
         super().__init__(gen, NBProgressBar, total)
-        self.report, self.clean_on_interrupt = [], clean_on_interrupt
+        self.report,self.clean_on_interrupt,self.total_time = [],clean_on_interrupt,total_time
         self.text,self.lines = "",[]
         self.html_code = '\n'.join([self.first_bar.progress, self.text])
         if order is None: order = ['pb1', 'text', 'pb2']
@@ -193,7 +193,8 @@ class NBMasterBar(MasterBar):
             self.out2.update(self.fig)
         total_time = format_time(time() - self.start_t)
         if self.text.endswith('<p>'): self.text = self.text[:-3]
-        self.out.update(HTML(f'Total time: {total_time} <p>' + self.text))
+        if self.total_time: self.text = f'Total time: {total_time} <p>' + self.text
+        self.out.update(HTML(self.text))
 
     def add_child(self, child):
         self.child = child
@@ -263,8 +264,9 @@ class ConsoleProgressBar(ProgressBar):
             if printing(): WRITER_FN(to_write, end = '\r')
 
 class ConsoleMasterBar(MasterBar):
-    def __init__(self, gen, total=None, hide_graph=False, order=None, clean_on_interrupt=False):
+    def __init__(self, gen, total=None, hide_graph=False, order=None, clean_on_interrupt=False, total_time=False):
         super().__init__(gen, ConsoleProgressBar, total)
+        self.total_time = total_time
 
     def add_child(self, child):
         self.child = child
@@ -289,7 +291,7 @@ class ConsoleMasterBar(MasterBar):
             
     def on_iter_end(self):
         total_time = format_time(time() - self.start_t)
-        print_and_maybe_save(f'Total time: {total_time}')
+        if self.total_time: print_and_maybe_save(f'Total time: {total_time}')
 
     def show_imgs(*args): pass
     def update_graph(*args): pass
