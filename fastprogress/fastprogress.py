@@ -286,10 +286,7 @@ class ConsoleMasterBar(MasterBar):
                 for (t,name) in zip(line,self.names): text += t + ' ' * (2 + len(name)-len(t))
             print_and_maybe_save(text)
         else: print_and_maybe_save(line)
-            
-    def on_iter_end(self):
         total_time = format_time(time() - self.start_t)
-        print_and_maybe_save(f'Total time: {total_time}')
 
     def show_imgs(*args): pass
     def update_graph(*args): pass
