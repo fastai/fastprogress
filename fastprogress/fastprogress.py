@@ -5,12 +5,17 @@ import shutil,os
 
 __all__ = ['master_bar', 'progress_bar', 'IN_NOTEBOOK', 'force_console_behavior']
 
+NO_BAR = False
+WRITER_FN = print
+SAVE_PATH = None
+SAVE_APPEND = False
+MAX_COLS = 160
+
 def isnotebook():
     try:
         from google import colab
         return True
-    except:
-        pass
+    except: pass
     try:
         shell = get_ipython().__class__.__name__
         if shell == 'ZMQInteractiveShell':
@@ -189,7 +194,7 @@ class NBMasterBar(MasterBar):
         if self.clean_on_interrupt: self.out.update(HTML(''))
 
     def on_iter_end(self):
-        if hasattr(self, 'fig'): 
+        if hasattr(self, 'fig'):
             plt.close()
             self.out2.update(self.fig)
         total_time = format_time(time() - self.start_t)
@@ -245,6 +250,7 @@ class ConsoleProgressBar(ProgressBar):
 
     def __init__(self, gen, total=None, display=True, leave=True, parent=None, auto_update=True, txt_len=60):
         cols,_ = shutil.get_terminal_size((100, 40))
+        if cols > MAX_COLS: cols=MAX_COLS
         self.length = cols-txt_len
         self.max_len,self.prefix = 0,''
         super().__init__(gen, total, display, leave, parent, auto_update)
@@ -273,7 +279,7 @@ class ConsoleMasterBar(MasterBar):
         self.child = child
         self.child.prefix = f'Epoch {self.first_bar.last_v+1}/{self.first_bar.total} :'
         self.child.display = True
-        
+
     def on_iter_begin(self):
         super().on_iter_begin()
         if SAVE_PATH is not None and os.path.exists(SAVE_PATH) and not SAVE_APPEND:
@@ -289,21 +295,16 @@ class ConsoleMasterBar(MasterBar):
                 for (t,name) in zip(line,self.names): text += t + ' ' * (2 + len(name)-len(t))
             print_and_maybe_save(text)
         else: print_and_maybe_save(line)
-        if self.total_time: 
+        if self.total_time:
             total_time = format_time(time() - self.start_t)
             print_and_maybe_save(f'Total time: {total_time}')
 
     def show_imgs(*args): pass
     def update_graph(*args): pass
 
-NO_BAR = False
-WRITER_FN = print
-SAVE_PATH = None
-SAVE_APPEND = False
-
 def print_and_maybe_save(line):
     WRITER_FN(line)
-    if SAVE_PATH is not None: 
+    if SAVE_PATH is not None:
         attr = "a" if os.path.exists(SAVE_PATH) else "w"
         with open(SAVE_PATH, attr) as f: f.write(line + '\n')
 
