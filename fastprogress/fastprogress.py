@@ -3,6 +3,8 @@ from sys import stdout
 from warnings import warn
 import shutil,os
 
+__all__ = ['master_bar', 'progress_bar', 'IN_NOTEBOOK', 'force_console_behavior']
+
 def isnotebook():
     try:
         from google import colab
@@ -28,8 +30,6 @@ if IN_NOTEBOOK:
     except:
         warn("Couldn't import ipywidgets properly, progress bar will use console behavior")
         IN_NOTEBOOK = False
-
-__all__ = ['master_bar', 'progress_bar']
 
 def format_time(t):
     t = int(t)
