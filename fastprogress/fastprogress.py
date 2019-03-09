@@ -64,6 +64,7 @@ class ProgressBar():
         self.update(0)
         try:
             for i,o in enumerate(self._gen):
+                if i >= self.total: break
                 yield o
                 if self.auto_update: self.update(i+1)
         except:
@@ -226,10 +227,10 @@ class NBMasterBar(MasterBar):
         if not hasattr(self, 'out2'): self.out2 = display(self.fig, display_id=True)
         else: self.out2.update(self.fig)
 
-    def update_graph(self, graphs, x_bounds=None, y_bounds=None):
+    def update_graph(self, graphs, x_bounds=None, y_bounds=None, figsize=(6,4)):
         if self.hide_graph: return
         if not hasattr(self, 'fig'):
-            self.fig, self.ax = plt.subplots(1, figsize=(6,4))
+            self.fig, self.ax = plt.subplots(1, figsize=figsize)
             self.out2 = display(self.ax.figure, display_id=True)
         self.ax.clear()
         if len(self.names) < len(graphs): self.names += [''] * (len(graphs) - len(self.names))
