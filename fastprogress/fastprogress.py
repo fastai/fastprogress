@@ -250,9 +250,9 @@ class ConsoleProgressBar(ProgressBar):
     fill:str='█'
 
     def __init__(self, gen, total=None, display=True, leave=True, parent=None, auto_update=True, txt_len=60):
-        cols,_ = shutil.get_terminal_size((100, 40))
-        if cols > MAX_COLS: cols=MAX_COLS
-        self.length = cols-txt_len
+        self.cols,_ = shutil.get_terminal_size((100, 40))
+        if self.cols > MAX_COLS: self.cols=MAX_COLS
+        self.length = self.cols-txt_len
         self.max_len,self.prefix = 0,''
         super().__init__(gen, total, display, leave, parent, auto_update)
 
@@ -265,6 +265,8 @@ class ConsoleProgressBar(ProgressBar):
 
     def on_update(self, val, text):
         if self.display:
+            if self.length > self.cols-len(text)-len(self.prefix)-4:
+                self.length = self.cols-len(text)-len(self.prefix)-4
             filled_len = int(self.length * val // self.total)
             bar = self.fill * filled_len + '-' * (self.length - filled_len)
             to_write = f'\r{self.prefix} |{bar}| {text}'
