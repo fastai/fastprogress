@@ -50,7 +50,7 @@ class ProgressBar():
         self.auto_update = auto_update
         self.total = len(gen) if total is None else total
         self.parent = parent
-        self.last_v,self.wait_for = 0,1
+        self.last_v = 0
         if parent is None: self.leave,self.display = leave,display
         else:
             self.leave,self.display=False,False
@@ -81,7 +81,7 @@ class ProgressBar():
     def update(self, val):
         if val == 0:
             self.start_t = self.last_t = time()
-            self.pred_t,self.last_v = 0,0
+            self.pred_t,self.last_v,self.wait_for = 0,0,1
             self.update_bar(0)
         elif val >= self.last_v + self.wait_for or val == self.total:
             cur_t = time()
