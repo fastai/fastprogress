@@ -50,6 +50,7 @@ class ProgressBar():
         self.auto_update = auto_update
         self.total = len(gen) if total is None else total
         self.parent = parent
+        self.last_v,self.wait_for = 0,1
         if parent is None: self.leave,self.display = leave,display
         else:
             self.leave,self.display=False,False
@@ -80,8 +81,7 @@ class ProgressBar():
     def update(self, val):
         if val == 0:
             self.start_t = self.last_t = time()
-            self.pred_t = 0
-            self.last_v,self.wait_for = 0,1
+            self.pred_t,self.last_v = 0,0
             self.update_bar(0)
         elif val >= self.last_v + self.wait_for or val == self.total:
             cur_t = time()
@@ -117,6 +117,7 @@ class MasterBar():
     def add_child(self, child): pass
     def write(self, line):      pass
     def update_graph(self, graphs, x_bounds, y_bounds): pass
+    def update(self, val): self.first_bar.update(val)
 
 def html_progress_bar(value, total, label, interrupted=False):
     bar_style = 'progress-bar-interrupted' if interrupted else ''
