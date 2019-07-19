@@ -2,8 +2,9 @@ from time import time
 from sys import stdout
 from warnings import warn
 import shutil,os
+from multiprocessing.pool import Pool
 
-__all__ = ['master_bar', 'progress_bar', 'IN_NOTEBOOK', 'force_console_behavior']
+__all__ = ['master_bar', 'progress_bar', 'IN_NOTEBOOK', 'force_console_behavior', 'BarPool']
 
 NO_BAR = False
 WRITER_FN = print
@@ -319,3 +320,15 @@ else:           master_bar, progress_bar = ConsoleMasterBar, ConsoleProgressBar
 
 def force_console_behavior():
     return ConsoleMasterBar, ConsoleProgressBar
+
+class BarPool(Pool): 
+    def map(self, func, iterable, *args, **kwds):
+        return [value for value in progress_bar(super().imap(func, iterable, *args, **kwds), len(iterable))]
+
+    def imap(self, func, iterable, *args, **kwds):
+        for value in progress_bar(super().imap(func, iterable, *args, **kwds), len(iterable)):
+            yield value
+    
+    def imap_unordered(self, func, iterable, *args, **kwds):
+        for value in progress_bar(super().imap_unordered(func, iterable, *args, **kwds), len(iterable)):
+            yield value
