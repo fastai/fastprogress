@@ -5,6 +5,7 @@ import shutil,os
 
 __all__ = ['master_bar', 'progress_bar', 'IN_NOTEBOOK', 'force_console_behavior']
 
+CLEAR_OUTPUT = True
 NO_BAR = False
 WRITER_FN = print
 SAVE_PATH = None
@@ -168,7 +169,9 @@ class NBProgressBar(ProgressBar):
         self.on_iter_end()
 
     def on_iter_end(self):
-        if not self.leave and self.display: clear_output()#self.out.update(HTML(''))
+        if not self.leave and self.display: 
+            if CLEAR_OUTPUT: clear_output()
+            else: self.out.update(HTML(''))
         self.is_active=False
 
     def on_update(self, val, text, interrupted=False):
