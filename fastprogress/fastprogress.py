@@ -270,7 +270,7 @@ class ConsoleProgressBar(ProgressBar):
         if self.display:
             if self.length > self.cols-len(text)-len(self.prefix)-4:
                 self.length = self.cols-len(text)-len(self.prefix)-4
-            filled_len = int(self.length * val // self.total)
+            filled_len = int(self.length * val // self.total) if self.total else 0
             bar = self.fill * filled_len + '-' * (self.length - filled_len)
             to_write = f'\r{self.prefix} |{bar}| {text}'
             if len(to_write) > self.max_len: self.max_len=len(to_write)
