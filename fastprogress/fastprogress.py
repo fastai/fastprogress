@@ -198,11 +198,11 @@ class NBMasterBar(MasterBar):
         if self.clean_on_interrupt: self.out.update(HTML(''))
 
     def on_iter_end(self):
-        if hasattr(self, 'imgs_fig') or hasattr(self, 'graph_fig'):
-            plt.close()
         if hasattr(self, 'imgs_fig'):
+            plt.close()
             self.imgs_out.update(self.imgs_fig)
         if hasattr(self, 'graph_fig'):
+            plt.close()
             self.graph_out.update(self.graph_fig)
         total_time = format_time(time() - self.start_t)
         if self.text.endswith('<p>'): self.text = self.text[:-3]
