@@ -198,9 +198,13 @@ class NBMasterBar(MasterBar):
         if self.clean_on_interrupt: self.out.update(HTML(''))
 
     def on_iter_end(self):
-        if hasattr(self, 'fig'):
+        if hasattr(self, 'imgs_fig') or hasattr(self, 'graph_fig'):
             plt.close()
-            self.out2.update(self.fig)
+        if hasattr(self, 'imgs_fig'):
+            self.imgs_out.update(self.imgs_fig)
+        if hasattr(self, 'graph_fig'):
+            #plt.close()
+            self.graph_out.update(self.graph_fig)
         total_time = format_time(time() - self.start_t)
         if self.text.endswith('<p>'): self.text = self.text[:-3]
         if self.total_time: self.text = f'Total time: {total_time} <p>' + self.text
@@ -229,25 +233,25 @@ class NBMasterBar(MasterBar):
         rows = len(imgs)//cols if len(imgs)%cols == 0 else len(imgs)//cols + 1
         plt.close()
         if figsize is None: figsize = (imgsize*cols, imgsize*rows)
-        self.fig, axs = plt.subplots(rows, cols, figsize=figsize)
+        self.imgs_fig, imgs_axs = plt.subplots(rows, cols, figsize=figsize)
         if titles is None: titles = [None] * len(imgs)
-        for img, ax, title in zip(imgs, axs.flatten(), titles): img.show(ax=ax, title=title)
-        for ax in axs.flatten()[len(imgs):]: ax.axis('off')
-        if not hasattr(self, 'out2'): self.out2 = display(self.fig, display_id=True)
-        else: self.out2.update(self.fig)
+        for img, ax, title in zip(imgs, imgs_axs.flatten(), titles): img.show(ax=ax, title=title)
+        for ax in imgs_axs.flatten()[len(imgs):]: ax.axis('off')
+        if not hasattr(self, 'imgs_out'): self.imgs_out = display(self.imgs_fig, display_id=True)
+        else: self.imgs_out.update(self.imgs_fig)
 
     def update_graph(self, graphs, x_bounds=None, y_bounds=None, figsize=(6,4)):
         if self.hide_graph: return
-        if not hasattr(self, 'fig'):
-            self.fig, self.ax = plt.subplots(1, figsize=figsize)
-            self.out2 = display(self.ax.figure, display_id=True)
-        self.ax.clear()
+        if not hasattr(self, 'graph_fig'):
+            self.graph_fig, self.graph_ax = plt.subplots(1, figsize=figsize)
+            self.graph_out = display(self.graph_ax.figure, display_id=True)
+        self.graph_ax.clear()
         if len(self.names) < len(graphs): self.names += [''] * (len(graphs) - len(self.names))
-        for g,n in zip(graphs,self.names): self.ax.plot(*g, label=n)
-        self.ax.legend(loc='upper right')
-        if x_bounds is not None: self.ax.set_xlim(*x_bounds)
-        if y_bounds is not None: self.ax.set_ylim(*y_bounds)
-        self.out2.update(self.ax.figure)
+        for g,n in zip(graphs,self.names): self.graph_ax.plot(*g, label=n)
+        self.graph_ax.legend(loc='upper right')
+        if x_bounds is not None: self.graph_ax.set_xlim(*x_bounds)
+        if y_bounds is not None: self.graph_ax.set_ylim(*y_bounds)
+        self.graph_out.update(self.graph_ax.figure)
 
 class ConsoleProgressBar(ProgressBar):
     fill:str='█'
