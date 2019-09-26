@@ -203,7 +203,6 @@ class NBMasterBar(MasterBar):
         if hasattr(self, 'imgs_fig'):
             self.imgs_out.update(self.imgs_fig)
         if hasattr(self, 'graph_fig'):
-            #plt.close()
             self.graph_out.update(self.graph_fig)
         total_time = format_time(time() - self.start_t)
         if self.text.endswith('<p>'): self.text = self.text[:-3]
