@@ -260,6 +260,8 @@ class ConsoleProgressBar(ProgressBar):
         if self.cols > MAX_COLS: self.cols=MAX_COLS
         self.length = self.cols-txt_len
         self.max_len,self.prefix = 0,''
+        try: print(self.fill, end='\r')
+        except: self.fill = 'X'
         super().__init__(gen, total, display, leave, parent, auto_update)
 
     def on_interrupt(self):
