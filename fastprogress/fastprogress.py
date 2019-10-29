@@ -3,11 +3,12 @@ from sys import stdout
 from warnings import warn
 import shutil,os
 
-__all__ = ['master_bar', 'progress_bar', 'IN_NOTEBOOK', 'force_console_behavior']
+__all__ = ['master_bar', 'progress_bar', 'IN_NOTEBOOK', 'force_console_behavior', 'workaround_empty_console_output']
 
 CLEAR_OUTPUT = True
 NO_BAR = False
 WRITER_FN = print
+FLUSH = True
 SAVE_PATH = None
 SAVE_APPEND = False
 MAX_COLS = 160
@@ -169,7 +170,7 @@ class NBProgressBar(ProgressBar):
         self.on_iter_end()
 
     def on_iter_end(self):
-        if not self.leave and self.display: 
+        if not self.leave and self.display:
             if CLEAR_OUTPUT: clear_output()
             else: self.out.update(HTML(''))
         self.is_active=False
@@ -254,13 +255,14 @@ class NBMasterBar(MasterBar):
 
 class ConsoleProgressBar(ProgressBar):
     fill:str='█'
+    end:str='\r'
 
     def __init__(self, gen, total=None, display=True, leave=True, parent=None, auto_update=True, txt_len=60):
         self.cols,_ = shutil.get_terminal_size((100, 40))
         if self.cols > MAX_COLS: self.cols=MAX_COLS
         self.length = self.cols-txt_len
         self.max_len,self.prefix = 0,''
-        try: print(self.fill, end='\r')
+        try: print(self.fill, end='\r', flush=FLUSH)
         except: self.fill = 'X'
         super().__init__(gen, total, display, leave, parent, auto_update)
 
@@ -269,7 +271,7 @@ class ConsoleProgressBar(ProgressBar):
 
     def on_iter_end(self):
         if not self.leave and printing():
-            print(f'\r{self.prefix}' + ' ' * (self.max_len - len(f'\r{self.prefix}')), end = '\r')
+            print(f'\r{self.prefix}' + ' ' * (self.max_len - len(f'\r{self.prefix}')), end=self.end, flush=FLUSH)
 
     def on_update(self, val, text):
         if self.display:
@@ -279,7 +281,7 @@ class ConsoleProgressBar(ProgressBar):
             bar = self.fill * filled_len + '-' * (self.length - filled_len)
             to_write = f'\r{self.prefix} |{bar}| {text}'
             if len(to_write) > self.max_len: self.max_len=len(to_write)
-            if printing(): WRITER_FN(to_write, end = '\r')
+            if printing(): WRITER_FN(to_write, end=self.end, flush=FLUSH)
 
 class ConsoleMasterBar(MasterBar):
     def __init__(self, gen, total=None, hide_graph=False, order=None, clean_on_interrupt=False, total_time=False):
@@ -327,3 +329,8 @@ else:           master_bar, progress_bar = ConsoleMasterBar, ConsoleProgressBar
 
 def force_console_behavior():
     return ConsoleMasterBar, ConsoleProgressBar
+
+def workaround_empty_console_output():
+    """Changes console output behaviour to correctly show progress in consoles not recognizing \r at the end of line
+    This helps in terminals like PyCharm Console etc."""
+    ConsoleProgressBar.end = ''
