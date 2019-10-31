@@ -271,7 +271,7 @@ class ConsoleProgressBar(ProgressBar):
 
     def on_iter_end(self):
         if not self.leave and printing():
-            print(f'\r{self.prefix}' + ' ' * (self.max_len - len(f'\r{self.prefix}')), end=self.end, flush=FLUSH)
+            print(f'\r{self.prefix}' + ' ' * (self.max_len - len(f'\r{self.prefix}')), end='\r', flush=FLUSH)
 
     def on_update(self, val, text):
         if self.display:
@@ -280,8 +280,10 @@ class ConsoleProgressBar(ProgressBar):
             filled_len = int(self.length * val // self.total) if self.total else 0
             bar = self.fill * filled_len + '-' * (self.length - filled_len)
             to_write = f'\r{self.prefix} |{bar}| {text}'
+            if val >= self.total: end = '\r'
+            else: end = self.end
             if len(to_write) > self.max_len: self.max_len=len(to_write)
-            if printing(): WRITER_FN(to_write, end=self.end, flush=FLUSH)
+            if printing(): WRITER_FN(to_write, end=end, flush=FLUSH)
 
 class ConsoleMasterBar(MasterBar):
     def __init__(self, gen, total=None, hide_graph=False, order=None, clean_on_interrupt=False, total_time=False):
