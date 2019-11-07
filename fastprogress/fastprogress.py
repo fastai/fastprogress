@@ -5,7 +5,7 @@ import shutil,os
 
 __all__ = ['master_bar', 'progress_bar', 'IN_NOTEBOOK', 'force_console_behavior', 'workaround_empty_console_output']
 
-CLEAR_OUTPUT = True
+CLEAR_OUTPUT = False
 NO_BAR = False
 WRITER_FN = print
 FLUSH = True
