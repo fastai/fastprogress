@@ -21,7 +21,9 @@ def isnotebook():
     try:
         shell = get_ipython().__class__.__name__
         if shell == 'ZMQInteractiveShell':
-            return True   # Jupyter notebook, Spyder or qtconsole
+            # Jupyter notebook, Spyder or qtconsole
+            import IPython
+            return IPython.__version__ >= '6.0.0'
         elif shell == 'TerminalInteractiveShell':
             return False  # Terminal running IPython
         else:
