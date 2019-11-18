@@ -60,17 +60,15 @@ class ProgressBar():
             self.leave,self.display=False,False
             parent.add_child(self)
         self.comment = ''
-        if not self.auto_update:
-            self.on_iter_begin()
-            self.update(0)
+        self._begun = False
+        if not self.auto_update: self.update(0)
 
-    def on_iter_begin(self): pass
+    def on_iter_begin(self): self._begun = True
     def on_interrupt(self): pass
     def on_iter_end(self): pass
     def on_update(self, val, text): pass
 
     def __iter__(self):
-        self.on_iter_begin()
         self.update(0)
         try:
             for i,o in enumerate(self._gen):
@@ -83,6 +81,7 @@ class ProgressBar():
         self.on_iter_end()
 
     def update(self, val):
+        if not self._begun: self.on_iter_begin()
         if val == 0:
             self.start_t = self.last_t = time()
             self.pred_t,self.last_v,self.wait_for = 0,0,1
@@ -109,19 +108,27 @@ class ProgressBar():
 
 
 class MasterBar():
-    def __init__(self, gen, cls, total=None): self.first_bar = cls(gen, total=total, display=False)
+    def __init__(self, gen, cls, total=None): 
+        self._begun=False
+        self.first_bar = cls(gen, total=total, display=False)
 
     def __iter__(self):
         self.on_iter_begin()
         for o in self.first_bar: yield o
         self.on_iter_end()
 
-    def on_iter_begin(self): self.start_t = time()
+    def on_iter_begin(self): 
+        self._begun=True
+        self.start_t = time()
+        
     def on_iter_end(self): pass
     def add_child(self, child): pass
     def write(self, line):      pass
     def update_graph(self, graphs, x_bounds, y_bounds): pass
-    def update(self, val): self.first_bar.update(val)
+    
+    def update(self, val): 
+        if not self._begun: self.on_iter_begin()
+        self.first_bar.update(val)
 
 def html_progress_bar(value, total, label, interrupted=False):
     bar_style = 'progress-bar-interrupted' if interrupted else ''
@@ -163,6 +170,7 @@ class NBProgressBar(ProgressBar):
         super().__init__(gen, total, display, leave, parent, auto_update)
 
     def on_iter_begin(self):
+        super().on_iter_begin()
         if self.display: self.out = display(HTML(self.progress), display_id=True)
         self.is_active=True
 
