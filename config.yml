@@ -1,0 +1,7 @@
+doc_path: docs
+git_url: https://github.com/fastai/fastprogress/tree/master/
+lib_name: fastprogress
+lib_path: fastprogress
+nbs_path: nbs
+tst_flags:
+- tst
