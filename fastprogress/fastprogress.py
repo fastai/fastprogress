@@ -134,10 +134,9 @@ class NBMasterBar(MasterBar):
         self.hide_graph,self.order = hide_graph,order
         self.report,self.clean_on_interrupt,self.total_time = [],clean_on_interrupt,total_time
         self.inner_dict = {'pb1':self.main_bar, 'text':""}
-        self.text = ""
+        self.text,self.lines = "",[]
 
     def on_iter_begin(self):
-        self.text,self.lines = "",[]
         self.html_code = '\n'.join([html_progress_bar(0, self.main_bar.total, ""), ""])
         self.out = display(HTML(self.html_code), display_id=True)
 
