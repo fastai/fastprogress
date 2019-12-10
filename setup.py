@@ -2,9 +2,7 @@ import setuptools
 
 # note: version is maintained inside fastprogress/version.py
 exec(open('fastprogress/version.py').read())
-
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+with open("README.md", "r") as fh: long_description = fh.read()
 
 setuptools.setup(
     name = "fastprogress",
@@ -24,3 +22,4 @@ setuptools.setup(
     tests_require = ['pytest'],
     test_suite = 'tests',
 )
+
