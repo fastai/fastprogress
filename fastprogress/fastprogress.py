@@ -36,7 +36,7 @@ class ProgressBar():
     def on_update(self, val, text): pass
 
     def __iter__(self):
-        self.update(0)
+        if self.total != 0: self.update(0)
         try:
             for i,o in enumerate(self.gen):
                 if i >= self.total: break
