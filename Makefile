@@ -28,3 +28,6 @@ dist: clean
 clean:
 	rm -rf dist
 
+bump:
+	nbdev_bump_version
+
