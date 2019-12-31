@@ -26,7 +26,7 @@ Here is a simple example. Each bar takes an iterator as a main argument, and we 
 - write a line between the two bars with mb.write('message')
 
 ``` python
-from fastprogress import master_bar, progress_bar
+from fastprogress.fastprogress import master_bar, progress_bar
 from time import sleep
 mb = master_bar(range(10))
 for i in mb:
