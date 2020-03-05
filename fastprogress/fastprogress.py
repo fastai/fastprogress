@@ -2,7 +2,7 @@
 
 __all__ = ['ProgressBar', 'MasterBar', 'NBProgressBar', 'NBMasterBar', 'NO_BAR', 'WRITER_FN', 'FLUSH', 'SAVE_PATH',
            'SAVE_APPEND', 'MAX_COLS', 'printing', 'ConsoleProgressBar', 'print_and_maybe_save', 'ConsoleMasterBar',
-           'else', 'master_bar', 'progress_bar', 'force_console_behavior', 'workaround_empty_console_output']
+           'master_bar', 'progress_bar', 'force_console_behavior', 'workaround_empty_console_output']
 
 # Cell
 import time,os,shutil
