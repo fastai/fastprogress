@@ -20,10 +20,12 @@ Note that this requires python 3.6 or later.
 
 ## Usage
 
-Here is a simple example. Each bar takes an iterator as a main argument, and we can specify the second bar is nested with the first by adding the argument parent=mb. We can then
-- add a comment in the first bar by changing the value of mb.main_bar.comment
-- add a comment in the first bar by changing the value of mb.child.comment
-- write a line between the two bars with mb.write('message')
+### Example 1
+
+Here is a simple example. Each bar takes an iterator as a main argument, and we can specify the second bar is nested with the first by adding the argument `parent=mb`. We can then:
+- add a comment in the first bar by changing the value of `mb.main_bar.comment`
+- add a comment in the first bar by changing the value of `mb.child.comment`
+- write a line between the two bars with `mb.write('message')`
 
 ``` python
 from fastprogress.fastprogress import master_bar, progress_bar
@@ -40,14 +42,16 @@ for i in mb:
 
 <img src="https://github.com/fastai/fastprogress/raw/master/images/pb_basic.gif" width="600">
 
-To add a graph that get plots as the training goes, just use the command mb.update_graphs. It will create the figure on its first use. Arguments are:
-- graphs: a list of graphs to be plotted (each of the form [x,y])
-- x_bounds: the min and max values of the x axis (if None, it will those given by the graphs)
-- y_bounds: the min and max values of the y axis (if None, it will those given by the graphs)
+### Example 2
 
-Note that it's best to specify x_bounds and _bounds otherwise the box will change as the loop progresses.
+To add a graph that get plots as the training goes, just use the command `mb.update_graphs`. It will create the figure on its first use. Arguments are:
+- `graphs`: a list of graphs to be plotted (each of the form `[x,y]`)
+- `x_bounds`: the min and max values of the x axis (if `None`, it will those given by the graphs)
+- `y_bounds`: the min and max values of the y axis (if `None`, it will those given by the graphs)
 
-Additionally, we can give the label of each graph via the command mb.names (should have as many elements as the graphs argument).
+Note that it's best to specify `x_bounds` and `y_bounds`, otherwise the box will change as the loop progresses.
+
+Additionally, we can give the label of each graph via the command `mb.names` (should have as many elements as the graphs argument).
 
 ``` python
 import numpy as np
@@ -74,4 +78,53 @@ Here is the rendering in console:
 
 <img src="https://github.com/fastai/fastprogress/raw/master/images/pb_console.gif" width="800">
 
-If the script using this is executed with a redirect to a file, only the results of the .write method will be printed in that file.
+If the script using this is executed with a redirect to a file, only the results of the `.write` method will be printed in that file.
+
+### Example 3
+
+Here is an example that a typical machine learning training loop can use. It also demonstrates how to set `y_bounds` dynamically.
+
+```
+def plot_loss_update(epoch, epochs, mb, train_loss, valid_loss):
+    """ dynamically print the loss plot during the training/validation loop.
+        expects epoch to start from 1.
+    """
+    x = range(1, epoch+1)
+    y = np.concatenate((train_loss, valid_loss))
+    graphs = [[x,train_loss], [x,valid_loss]]
+    x_margin = 0.2
+    y_margin = 0.05
+    x_bounds = [1-x_margin, epochs+x_margin]
+    y_bounds = [np.min(y)-y_margin, np.max(y)+y_margin]
+
+    mb.update_graph(graphs, x_bounds, y_bounds)
+```
+
+And here is an emulation of a training loop that uses this function:
+
+```
+from fastprogress.fastprogress import master_bar, progress_bar
+from time import sleep
+import numpy as np
+import random
+
+epochs = 5
+mb = master_bar(range(1, epochs+1))
+# optional: graph legend: if not set, the default is 'train'/'valid'
+# mb.names = ['first', 'second']
+train_loss, valid_loss = [], []
+for epoch in mb:
+    # emulate train sub-loop
+    for batch in progress_bar(range(2), parent=mb): sleep(0.2)
+    train_loss.append(0.5 - 0.06 * epoch + random.uniform(0, 0.04))
+
+    # emulate validation sub-loop
+    for batch in progress_bar(range(2), parent=mb): sleep(0.2)
+    valid_loss.append(0.5 - 0.03 * epoch + random.uniform(0, 0.04))
+
+    plot_loss_update(epoch, epochs, mb, train_loss, valid_loss)
+```
+
+And the output:
+
+<img src="https://github.com/fastai/fastprogress/raw/master/images/pb_graph.gif" alt="Output">
