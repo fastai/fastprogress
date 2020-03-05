@@ -23,11 +23,14 @@ index = {"format_time": "00_core.ipynb",
          "ConsoleProgressBar": "01_fastprogress.ipynb",
          "print_and_maybe_save": "01_fastprogress.ipynb",
          "ConsoleMasterBar": "01_fastprogress.ipynb",
+         "else": "01_fastprogress.ipynb",
          "force_console_behavior": "01_fastprogress.ipynb",
          "workaround_empty_console_output": "01_fastprogress.ipynb"}
 
 modules = ["core.py",
            "fastprogress.py"]
+
+doc_url = "https://fastai.github.io/fastprogress/"
 
 git_url = "https://github.com/fastai/fastprogress/tree/master/"
 
