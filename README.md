@@ -14,14 +14,14 @@ pip install fastprogress
 ```
 or:
 ```
-conda install -c fastai fastprogress 
+conda install -c fastai fastprogress
 ```
 Note that this requires python 3.6 or later.
 
 ## Usage
 
 Here is a simple example. Each bar takes an iterator as a main argument, and we can specify the second bar is nested with the first by adding the argument parent=mb. We can then
-- add a comment in the first bar by changing the value of mb.first_bar.comment
+- add a comment in the first bar by changing the value of mb.main_bar.comment
 - add a comment in the first bar by changing the value of mb.child.comment
 - write a line between the two bars with mb.write('message')
 
@@ -33,7 +33,7 @@ for i in mb:
     for j in progress_bar(range(100), parent=mb):
         sleep(0.01)
         mb.child.comment = f'second bar stat'
-    mb.first_bar.comment = f'first bar stat'
+    mb.main_bar.comment = f'first bar stat'
     mb.write(f'Finished loop {i}.')
     #mb.update_graph(graphs, x_bounds, y_bounds)
 ```
@@ -64,7 +64,7 @@ for i in mb:
             y_bounds = [-1,1]
             mb.update_graph(graphs, x_bounds, y_bounds)
             mb.child.comment = f'second bar stat'
-    mb.first_bar.comment = f'first bar stat'
+    mb.main_bar.comment = f'first bar stat'
     mb.write(f'Finished loop {i}.')
 ```
 
