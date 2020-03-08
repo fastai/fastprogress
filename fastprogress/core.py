@@ -28,7 +28,7 @@ def html_progress_bar(value, total, label, interrupted=False):
                 background: #F44336;
             }}
         </style>
-      <progress value='{value}' class='{bar_style}' max='{total}', style='width:300px; height:20px; vertical-align: middle;'></progress>
+      <progress value='{value}' class='{bar_style}' max='{total}' style='width:300px; height:20px; vertical-align: middle;'></progress>
       {label}
     </div>
     """
