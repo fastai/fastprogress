@@ -22,7 +22,6 @@ class ProgressBar():
         else:
             self.leave,self.display=False,False
             parent.add_child(self)
-        self.last_v = None
 
     def on_iter_begin(self):
         if self.master is not None: self.master.on_iter_begin()
