@@ -284,8 +284,8 @@ class ConsoleMasterBar(MasterBar):
             total_time = format_time(time() - self.start_t)
             print_and_maybe_save(f'Total time: {total_time}')
 
-    def show_imgs(*args): pass
-    def update_graph(*args): pass
+    def show_imgs(*args, **kwargs): pass
+    def update_graph(*args, **kwargs): pass
 
 # Cell
 if IN_NOTEBOOK: master_bar, progress_bar = NBMasterBar, NBProgressBar
