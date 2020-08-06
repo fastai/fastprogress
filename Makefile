@@ -17,6 +17,7 @@ test:
 	nbdev_test_nbs
 
 release: pypi
+	nbdev_conda_package --upload_user fastai
 	nbdev_bump_version
 
 pypi: dist
