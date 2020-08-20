@@ -4,15 +4,8 @@ topnav_title: fastprogress
 site_title: fastprogress
 company_name: fast.ai
 description: A nested progress with plotting options for fastai
-# Add Google analytics id if you have one and want to use it here
 google_analytics:
-# See http://nbdev.fast.ai/search for help with adding Search
 google_search:
-
-host: 127.0.0.1
-# the preview server used. Leave as is.
-port: 4000
-# the port where the preview is rendered.
 
 exclude:
   - .idea/
@@ -58,4 +51,5 @@ sidebars:
 - home_sidebar
 
 theme: jekyll-theme-cayman
-baseurl: /fastprogress/
+baseurl: /
+

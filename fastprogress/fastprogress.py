@@ -292,6 +292,9 @@ if IN_NOTEBOOK: master_bar, progress_bar = NBMasterBar, NBProgressBar
 else:           master_bar, progress_bar = ConsoleMasterBar, ConsoleProgressBar
 
 # Cell
+#nbdev_comment _all_ = ['master_bar', 'progress_bar']
+
+# Cell
 def force_console_behavior():
     "Return the console progress bars"
     return ConsoleMasterBar, ConsoleProgressBar

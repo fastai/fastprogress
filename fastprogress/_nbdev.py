@@ -29,7 +29,7 @@ index = {"format_time": "00_core.ipynb",
 modules = ["core.py",
            "fastprogress.py"]
 
-doc_url = "https://fastai.github.io/fastprogress/"
+doc_url = "https://fastprogress.fast.ai/"
 
 git_url = "https://github.com/fastai/fastprogress/tree/master/"
 
