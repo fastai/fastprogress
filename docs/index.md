@@ -2,8 +2,6 @@
 
 A fast and simple progress bar for Jupyter Notebook and console. Created by Sylvain Gugger for fast.ai.
 
-Copyright 2017 onwards, fast.ai. Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. A copy of the License is provided in the LICENSE file in this repository.
-
 <img src="https://github.com/fastai/fastprogress/raw/master/images/cifar_train.gif" width="600">
 
 ## Install
@@ -128,3 +126,7 @@ for epoch in mb:
 And the output:
 
 <img src="https://github.com/fastai/fastprogress/raw/master/images/pb_graph.gif" alt="Output">
+
+----
+
+Copyright 2017 onwards, fast.ai. Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. A copy of the License is provided in the LICENSE file in this repository.
