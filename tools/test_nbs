@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import time,random,glob,os
 from pathlib import Path
-from fastai2.core.script import *
-from fastai2.torch_core import parallel
+from fastai.core.script import *
+from fastai.torch_core import parallel
 from nbdev.test import test_nb
 from nbdev.core import Config
 

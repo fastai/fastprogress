@@ -6,8 +6,8 @@ from functools import partial
 from nbdev.core import Config
 
 from sidebar_data import sidebar_d
-from fastai2.core.script import *
-from fastai2.torch_core import parallel
+from fastai.core.script import *
+from fastai.torch_core import parallel
             
 def _leaf(k,v):
     url = 'external_url' if "http" in v else 'url'
