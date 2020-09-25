@@ -1,6 +1,6 @@
 # fastprogress
 
-A fast and simple progress bar for Jupyter Notebook and console. Created by Sylvain Gugger for fast.ai.
+A fast and simple progress bar for Jupyter Notebook and console. Created by Sylvain Gugger for fastai.
 
 <img src="https://github.com/fastai/fastprogress/raw/master/images/cifar_train.gif" width="600">
 
