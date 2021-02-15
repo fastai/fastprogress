@@ -22,7 +22,7 @@ Note that this requires python 3.6 or later.
 
 Here is a simple example. Each bar takes an iterator as a main argument, and we can specify the second bar is nested with the first by adding the argument `parent=mb`. We can then:
 - add a comment in the first bar by changing the value of `mb.main_bar.comment`
-- add a comment in the first bar by changing the value of `mb.child.comment`
+- add a comment in the second bar by changing the value of `mb.child.comment`
 - write a line between the two bars with `mb.write('message')`
 
 ``` python
