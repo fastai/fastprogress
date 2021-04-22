@@ -208,7 +208,7 @@ MAX_COLS = 160
 
 # Cell
 def printing():
-    return False if NO_BAR else (stdout.isatty() or IN_NOTEBOOK)
+    return False if NO_BAR else (hasattr(stdout, 'isatty') and stdout.isatty() or IN_NOTEBOOK)
 
 # Cell
 class ConsoleProgressBar(ProgressBar):
