@@ -4,6 +4,7 @@ __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
 index = {"format_time": "00_core.ipynb",
          "html_progress_bar": "00_core.ipynb",
+         "html_progress_bar_styles": "00_core.ipynb",
          "text2html_table": "00_core.ipynb",
          "in_colab": "00_core.ipynb",
          "IN_COLAB": "00_core.ipynb",
