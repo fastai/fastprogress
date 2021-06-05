@@ -211,7 +211,7 @@ MAX_COLS = 160
 
 # Cell
 def printing():
-    return False if NO_BAR else (stdout.isatty() or IN_NOTEBOOK)
+    return False if NO_BAR else (stdout.isatty() or IN_NOTEBOOK or 'PYCHARM_HOSTED' in os.environ)
 
 # Cell
 class ConsoleProgressBar(ProgressBar):
