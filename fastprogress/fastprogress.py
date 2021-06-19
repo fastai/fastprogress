@@ -122,7 +122,9 @@ class NBProgressBar(ProgressBar):
     def on_iter_begin(self):
         super().on_iter_begin()
         self.progress = html_progress_bar(0, self.total, "")
-        if self.display: self.out = NBOutput(HTML(self.progress))
+        if self.display:
+            display(HTML(html_progress_bar_styles))
+            self.out = NBOutput(HTML(self.progress))
         self.is_active=True
 
     def on_interrupt(self):
@@ -153,6 +155,7 @@ class NBMasterBar(MasterBar):
 
     def on_iter_begin(self):
         self.html_code = '\n'.join([html_progress_bar(0, self.main_bar.total, ""), ""])
+        display(HTML(html_progress_bar_styles))
         self.out = NBOutput(HTML(self.html_code))
 
     def on_interrupt(self):
