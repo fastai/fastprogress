@@ -2,6 +2,13 @@
 
 <!-- do not remove -->
 
+## 1.0.2
+
+### Bugs Squashed
+
+- Check that stdout exposes `isatty` ([#81](https://github.com/fastai/fastprogress/pull/81)), thanks to [@scw](https://github.com/scw)
+
+
 ## 1.0.1
 
 ### Bugs Squashed
