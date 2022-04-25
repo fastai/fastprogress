@@ -284,7 +284,7 @@ class ConsoleMasterBar(MasterBar):
             print_and_maybe_save(text)
         else: print_and_maybe_save(line)
         if self.total_time:
-            total_time = format_time(time() - self.start_t)
+            total_time = format_time(time.time() - self.start_t)
             print_and_maybe_save(f'Total time: {total_time}')
 
     def show_imgs(*args, **kwargs): pass
