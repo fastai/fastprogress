@@ -211,7 +211,9 @@ MAX_COLS = 160
 
 # Cell
 def printing():
-    return False if NO_BAR else (hasattr(stdout, 'isatty') and stdout.isatty() or IN_NOTEBOOK)
+    "`True` if we want to print progress"
+    if NO_BAR: return False
+    return getattr(stdout, 'isatty', False) or IN_NOTEBOOK or 'PYCHARM_HOSTED' in os.environ
 
 # Cell
 class ConsoleProgressBar(ProgressBar):
@@ -284,7 +286,7 @@ class ConsoleMasterBar(MasterBar):
             print_and_maybe_save(text)
         else: print_and_maybe_save(line)
         if self.total_time:
-            total_time = format_time(time.time() - self.start_t)
+            total_time = format_time(time() - self.start_t)
             print_and_maybe_save(f'Total time: {total_time}')
 
     def show_imgs(*args, **kwargs): pass
