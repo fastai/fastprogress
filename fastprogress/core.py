@@ -24,6 +24,9 @@ html_progress_bar_styles = """
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -33,9 +36,10 @@ html_progress_bar_styles = """
 def html_progress_bar(value, total, label, interrupted=False):
     "Html code for a progress bar `value`/`total` with `label`"
     bar_style = 'progress-bar-interrupted' if interrupted else ''
+    val = '' if total is None else f"value='{value}'"
     return f"""
     <div>
-      <progress value='{value}' class='{bar_style}' max='{total}' style='width:300px; height:20px; vertical-align: middle;'></progress>
+      <progress {val} class='{bar_style}' max='{total}' style='width:300px; height:20px; vertical-align: middle;'></progress>
       {label}
     </div>
     """
