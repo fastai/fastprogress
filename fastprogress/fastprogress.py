@@ -12,11 +12,11 @@ from .core import *
 
 # Cell
 class ProgressBar():
-    update_every,first_its = 0.2,5
+    update_every,first_its,lt = 0.2,5,'<'
 
     def __init__(self, gen, total=None, display=True, leave=True, parent=None, master=None, comment=''):
         self.gen,self.parent,self.master,self.comment = gen,parent,master,comment
-        self.total = len(gen) if total is None else total
+        self.total = None if total=='noinfer' else len(gen) if total is None else total
         self.last_v = 0
         if parent is None: self.leave,self.display = leave,display
         else:
@@ -39,9 +39,12 @@ class ProgressBar():
         if self.total != 0: self.update(0)
         try:
             for i,o in enumerate(self.gen):
-                if i >= self.total: break
+                if self.total and i >= self.total: break
                 yield o
                 self.update(i+1)
+            if self.total is None and self.last_v is not None:
+                self.total = i+1
+                self.update(self.total)
         except Exception as e:
             self.on_interrupt()
             raise e
@@ -52,28 +55,30 @@ class ProgressBar():
             self.last_v = 0
         if val == 0:
             self.start_t = self.last_t = time.time()
-            self.pred_t,self.last_v,self.wait_for = 0,0,1
+            self.pred_t,self.last_v,self.wait_for = None,0,1
             self.update_bar(0)
-        elif val <= self.first_its or val >= self.last_v + self.wait_for or val >= self.total:
+        elif val <= self.first_its or val >= self.last_v + self.wait_for or (self.total and val >= self.total):
             cur_t = time.time()
             avg_t = (cur_t - self.start_t) / val
             self.wait_for = max(int(self.update_every / (avg_t+1e-8)),1)
-            self.pred_t = avg_t * self.total
+            self.pred_t = None if self.total is None else avg_t * self.total
             self.last_v,self.last_t = val,cur_t
             self.update_bar(val)
-            if val >= self.total:
+            if self.total is not None and val >= self.total:
                 self.on_iter_end()
                 self.last_v = None
 
     def update_bar(self, val):
-        elapsed_t = self.last_t - self.start_t
-        remaining_t = format_time(self.pred_t - elapsed_t)
-        elapsed_t = format_time(elapsed_t)
-        end = '' if len(self.comment) == 0 else f' {self.comment}'
         if self.total == 0:
             warn("Your generator is empty.")
-            self.on_update(0, '100% [0/0]')
-        else: self.on_update(val, f'{100 * val/self.total:.2f}% [{val}/{self.total} {elapsed_t}<{remaining_t}{end}]')
+            return self.on_update(0, '100% [0/0]')
+        pct = '' if self.total is None else f'{100 * val/self.total:.2f}% '
+        tot = '?' if self.total is None else str(self.total)
+        elapsed_t = self.last_t - self.start_t
+        remaining_t = '?' if self.pred_t is None else format_time(self.pred_t - elapsed_t)
+        elapsed_t = format_time(elapsed_t)
+        end = '' if len(self.comment) == 0 else f' {self.comment}'
+        self.on_update(val, f'{pct}[{val}/{tot} {elapsed_t}{self.lt}{remaining_t}{end}]')
 
 # Cell
 class MasterBar(ProgressBar):
@@ -104,6 +109,7 @@ if IN_NOTEBOOK:
 
 # Cell
 class NBProgressBar(ProgressBar):
+    lt = '&lt;'
     def on_iter_begin(self):
         super().on_iter_begin()
         self.progress = html_progress_bar(0, self.total, "")
@@ -246,7 +252,7 @@ class ConsoleProgressBar(ProgressBar):
             filled_len = int(self.length * val // self.total) if self.total else 0
             bar = self.fill * filled_len + '-' * (self.length - filled_len)
             to_write = f'\r{self.prefix} |{bar}| {text}'
-            if val >= self.total: end = '\r'
+            if self.total and val >= self.total: end = '\r'
             else: end = self.end
             if len(to_write) > self.max_len: self.max_len=len(to_write)
             if printing(): WRITER_FN(to_write, end=end, flush=FLUSH)
