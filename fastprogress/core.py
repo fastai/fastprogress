@@ -71,9 +71,9 @@ IN_COLAB = in_colab()
 # Cell
 def in_notebook():
     "Check if the code is running in a jupyter notebook"
-    if in_colab(): return True
     try:
         shell = get_ipython().__class__.__name__
+        if in_colab(): return True
         if shell == 'ZMQInteractiveShell': # Jupyter notebook, Spyder or qtconsole
             import IPython
             #IPython version lower then 6.0.0 don't work with output you update
